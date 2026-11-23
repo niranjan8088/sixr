@@ -21,8 +21,11 @@ export default function Survivors() {
   return (
     <group>
       {survivors.map((s, idx) => {
-        const isRescued = s.status === SURVIVOR_STATUS.RESCUED;
-        const beaconColor = isRescued ? '#00ffaa' : '#ff4400';
+        const isRescued =
+          s.status === SURVIVOR_STATUS.STABILIZED ||
+          s.status === SURVIVOR_STATUS.EVACUATED ||
+          s.status === 'RESCUED';
+        const beaconColor = isRescued ? '#00ffaa' : (s.triageColor || '#ff4400');
 
         return (
           <group key={s.id} position={s.position}>

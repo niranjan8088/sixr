@@ -56,10 +56,12 @@ export default function Interactions() {
         targetType = 'SURVIVOR';
         targetName = s.name;
 
-        if (s.status === SURVIVOR_STATUS.RESCUED) {
-          promptText = `${s.name} is stabilized and awaiting extraction`;
+        if (s.status === SURVIVOR_STATUS.STABILIZED || s.status === SURVIVOR_STATUS.EVACUATED) {
+          promptText = `${s.name.toUpperCase()} (STABILIZED) — AWAITING EVAC CHOPPER`;
+        } else if (s.status === SURVIVOR_STATUS.ASSESSMENT) {
+          promptText = `[E] RESUME TRIAGE: ${s.name.toUpperCase()} (${s.triageTag || 'URGENT'})`;
         } else {
-          promptText = `[E] STABILIZE ${s.name.toUpperCase()} (${s.role})`;
+          promptText = `[E] TRIAGE CASUALTY: ${s.name.toUpperCase()} (${s.role})`;
         }
       }
     }
@@ -75,9 +77,9 @@ export default function Interactions() {
       targetName = 'Evac Helipad';
 
       if (isExtractionReady) {
-        promptText = '[E] ENTER HELIPAD & CALL EXTRACTION';
+        promptText = '[E] BOARD EVAC HELICOPTER & COMPLETE MISSION';
       } else {
-        promptText = 'EXTRACTION UNAVAILABLE: Locate and rescue all survivors first';
+        promptText = 'EXTRACTION LOCKED: Stabilize all 3 civilian casualties first';
       }
     }
 
