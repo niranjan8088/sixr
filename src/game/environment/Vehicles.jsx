@@ -1,7 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { globalCollisions } from '../core/CollisionManager';
 
 export default function Vehicles() {
+  const redStrobeRef = useRef();
+  const blueStrobeRef = useRef();
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    // Alternating sharp police emergency flashers
+    const redFlash = Math.sin(t * 14) > 0.2 ? 3.2 : 0.05;
+    const blueFlash = Math.sin(t * 14 + Math.PI) > 0.2 ? 3.2 : 0.05;
+
+    if (redStrobeRef.current) redStrobeRef.current.intensity = redFlash;
+    if (blueStrobeRef.current) blueStrobeRef.current.intensity = blueFlash;
+  });
+
   // Register vehicle colliders
   useEffect(() => {
     // Paramedic Ambulance (Positioned along the roadside overgrown path, matching Image 4)
@@ -12,6 +26,8 @@ export default function Vehicles() {
     globalCollisions.addBox(3.4, 14.0, 6.2, 18.0, 'veh-suv');
     // Rusted Station Wagon (North path)
     globalCollisions.addBox(-5.8, -32.0, -2.4, -28.0, 'veh-wagon');
+    // Police Patrol Cruiser (Intersection center)
+    globalCollisions.addBox(-5.5, -10.0, -1.5, -6.0, 'veh-police');
   }, []);
 
   return (
@@ -229,6 +245,87 @@ export default function Vehicles() {
             <mesh key={`sed-w-${x}-${z}`} position={[x, -0.22, z]} rotation={[0, 0, Math.PI / 2]}>
               <cylinderGeometry args={[0.34, 0.34, 0.26, 12]} />
               <meshStandardMaterial color="#181a18" roughness={0.9} />
+            </mesh>
+          ))
+        )}
+      </group>
+
+      {/* =================================================================
+          4. ABANDONED POLICE PATROL CRUISER (Panel 4 - Emergency Lights)
+          Black & white sedan, push-bumper, flashing RED & BLUE emergency lightbar
+         ================================================================= */}
+      <group position={[-3.6, 0.45, -8.0]} rotation={[-0.02, 0.42, 0.03]}>
+        {/* Main Lower Chassis */}
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[2.0, 0.7, 4.4]} />
+          <meshStandardMaterial color="#09090b" roughness={0.5} metalness={0.3} />
+        </mesh>
+        {/* White Center Door Panels */}
+        <mesh position={[1.01, 0.05, 0]}>
+          <planeGeometry args={[1.8, 0.55]} rotation={[0, Math.PI / 2, 0]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.4} />
+        </mesh>
+        <mesh position={[-1.01, 0.05, 0]}>
+          <planeGeometry args={[1.8, 0.55]} rotation={[0, -Math.PI / 2, 0]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.4} />
+        </mesh>
+
+        {/* Cabin Glass & Roof */}
+        <mesh position={[0, 0.52, -0.2]}>
+          <boxGeometry args={[1.65, 0.55, 2.3]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
+        </mesh>
+        <mesh position={[0, 0.81, -0.2]}>
+          <boxGeometry args={[1.68, 0.08, 2.2]} />
+          <meshStandardMaterial color="#09090b" roughness={0.5} />
+        </mesh>
+
+        {/* Heavy Black Steel Push-Bumper (Bullbar on front) */}
+        <mesh position={[0, -0.05, 2.3]}>
+          <boxGeometry args={[1.6, 0.55, 0.22]} />
+          <meshStandardMaterial color="#18181b" metalness={0.9} />
+        </mesh>
+
+        {/* Roof Emergency Lightbar (Red Left, Blue Right) */}
+        <group position={[0, 0.92, -0.2]}>
+          <mesh>
+            <boxGeometry args={[1.4, 0.12, 0.28]} />
+            <meshStandardMaterial color="#18181b" metalness={0.8} />
+          </mesh>
+          {/* Red Left Beacon Lens */}
+          <mesh position={[-0.45, 0.02, 0]}>
+            <boxGeometry args={[0.42, 0.14, 0.24]} />
+            <meshBasicMaterial color="#ef4444" />
+          </mesh>
+          {/* Blue Right Beacon Lens */}
+          <mesh position={[0.45, 0.02, 0]}>
+            <boxGeometry args={[0.42, 0.14, 0.24]} />
+            <meshBasicMaterial color="#3b82f6" />
+          </mesh>
+
+          {/* Dynamic Alternating Emergency Flasher PointLights */}
+          <pointLight
+            ref={redStrobeRef}
+            position={[-0.8, 0.3, 0]}
+            color="#ef4444"
+            distance={16}
+            decay={2}
+          />
+          <pointLight
+            ref={blueStrobeRef}
+            position={[0.8, 0.3, 0]}
+            color="#3b82f6"
+            distance={16}
+            decay={2}
+          />
+        </group>
+
+        {/* Wheels */}
+        {[-1.04, 1.04].map((x) =>
+          [-1.35, 1.4].map((z) => (
+            <mesh key={`pol-w-${x}-${z}`} position={[x, -0.18, z]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.34, 0.34, 0.28, 14]} />
+              <meshStandardMaterial color="#18181b" roughness={0.9} />
             </mesh>
           ))
         )}

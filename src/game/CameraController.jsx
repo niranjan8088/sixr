@@ -115,7 +115,10 @@ export default function CameraController() {
 
     // Target Camera 3D coordinates
     const targetCamX = targetPlayerPos.x + sinYaw * cosPitch * camDistance + rightX * shoulderOffset;
-    const targetCamY = Math.max(0.65, targetPlayerPos.y + camHeight + sinPitch * camDistance);
+    const isMoving = useGameStore.getState().player.isMoving;
+    const isSprinting = useGameStore.getState().player.isSprinting;
+    const bob = isMoving ? Math.sin(state.clock.getElapsedTime() * (isSprinting ? 12 : 8)) * (isSprinting ? 0.04 : 0.02) : 0;
+    const targetCamY = Math.max(0.65, targetPlayerPos.y + camHeight + sinPitch * camDistance + bob);
     const targetCamZ = targetPlayerPos.z + cosYaw * cosPitch * camDistance + rightZ * shoulderOffset;
 
     // Look-At Target (Upper back / neck center with subtle right offset)

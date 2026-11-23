@@ -5,6 +5,7 @@ export default function Lighting() {
   const ambulanceLightRef = useRef();
   const fireEngineLightRef = useRef();
   const beaconLightRef = useRef();
+  const policeStrobeBlueRef = useRef();
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -13,6 +14,7 @@ export default function Lighting() {
     const flash = Math.sin(t * 8) > 0 ? 2.5 : 0.1;
     if (ambulanceLightRef.current) ambulanceLightRef.current.intensity = flash;
     if (fireEngineLightRef.current) fireEngineLightRef.current.intensity = Math.sin(t * 8 + Math.PI) > 0 ? 2.5 : 0.1;
+    if (policeStrobeBlueRef.current) policeStrobeBlueRef.current.intensity = Math.sin(t * 12) > 0 ? 3.0 : 0.05;
 
     // Evac helipad beacon
     if (beaconLightRef.current) {
@@ -78,7 +80,22 @@ export default function Lighting() {
         decay={2}
       />
 
-      {/* 7. Helipad Evac Extraction Beacon (Northern Clearing) */}
+      {/* 7. Police Cruiser Blue Strobe Flash */}
+      <pointLight
+        ref={policeStrobeBlueRef}
+        position={[-3.6, 2.2, -8.0]}
+        color="#2563eb"
+        distance={18}
+        decay={2}
+      />
+
+      {/* 8. Warm Amber Streetlights Glow on Sidewalks (GTA V Style) */}
+      <pointLight position={[-8.8, 6.8, 8]} color="#f59e0b" distance={16} decay={2} intensity={1.4} />
+      <pointLight position={[8.8, 6.8, 8]} color="#f59e0b" distance={16} decay={2} intensity={1.4} />
+      <pointLight position={[-8.8, 6.8, -26]} color="#f59e0b" distance={16} decay={2} intensity={1.4} />
+      <pointLight position={[8.8, 6.8, -26]} color="#f59e0b" distance={16} decay={2} intensity={1.4} />
+
+      {/* 9. Helipad Evac Extraction Beacon (Northern Clearing) */}
       <pointLight
         ref={beaconLightRef}
         position={[0, 6, -42]}

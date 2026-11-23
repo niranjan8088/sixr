@@ -39,6 +39,34 @@ export default function DebrisPiles() {
             <cylinderGeometry args={[0.22, 0.28, 3.4, 8]} />
             <meshStandardMaterial color="#382e22" roughness={0.88} />
           </mesh>
+
+          {/* Twisted Rusty Structural Steel I-Beam / H-Girder (Panel 2 Match) */}
+          {idx % 2 === 0 && (
+            <group position={[-0.4, 0.6, 0.3]} rotation={[0.4, idx * 0.9, -0.6]}>
+              {/* Web */}
+              <mesh castShadow>
+                <boxGeometry args={[0.06, 3.2, 0.35]} />
+                <meshStandardMaterial color="#78350f" roughness={0.7} metalness={0.8} />
+              </mesh>
+              {/* Flanges */}
+              <mesh position={[-0.04, 0, 0]}>
+                <boxGeometry args={[0.04, 3.2, 0.12]} />
+                <meshStandardMaterial color="#78350f" metalness={0.8} />
+              </mesh>
+              <mesh position={[0.04, 0, 0]}>
+                <boxGeometry args={[0.04, 3.2, 0.12]} />
+                <meshStandardMaterial color="#78350f" metalness={0.8} />
+              </mesh>
+            </group>
+          )}
+
+          {/* Shattered Concrete Cinderblock Chunks */}
+          {[-0.6, 0.5].map((cx, ci) => (
+            <mesh key={`block-${ci}`} position={[cx, 0.2, -0.4]} rotation={[0.3 * ci, 0.5 * ci, 0.2]}>
+              <boxGeometry args={[0.45, 0.3, 0.4]} />
+              <meshStandardMaterial color="#64748b" roughness={0.92} />
+            </mesh>
+          ))}
         </group>
       ))}
 

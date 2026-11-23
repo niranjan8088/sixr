@@ -61,6 +61,82 @@ export default function CityGround() {
         <meshStandardMaterial color="#555a60" roughness={0.8} />
       </mesh>
 
+      {/* Cast-Iron Road Storm Drain Grates along Curbs */}
+      {[-35, -12, 10, 24].map((zD, dI) => (
+        <group key={`drain-${dI}`} position={[-7.4, 0.025, zD]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.7, 1.4]} />
+            <meshStandardMaterial color="#1c1917" metalness={0.9} roughness={0.4} />
+          </mesh>
+          {/* Slotted Grate Bars */}
+          {[-0.2, 0, 0.2].map((bx, bi) => (
+            <mesh key={`bar-${bi}`} position={[bx, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.06, 1.3]} />
+              <meshStandardMaterial color="#292524" metalness={0.95} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
+      {/* Cast-Iron Circular Manhole Covers in Roadway */}
+      {[-28, -2, 16].map((zM, mI) => (
+        <group key={`manhole-${mI}`} position={[mI % 2 === 0 ? -2.2 : 2.5, 0.024, zM]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.6, 24]} />
+            <meshStandardMaterial color="#292524" metalness={0.85} roughness={0.5} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0]}>
+            <ringGeometry args={[0.3, 0.52, 24]} />
+            <meshStandardMaterial color="#1c1917" metalness={0.9} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Cast-Iron Red Emergency Fire Hydrants on Sidewalks */}
+      {[-8.5, 8.5].map((hx, hi) =>
+        [-20, 15].map((hz, zi) => (
+          <group key={`hydrant-${hi}-${zi}`} position={[hx, 0.3, hz]}>
+            {/* Main Barrel Body */}
+            <mesh position={[0, 0.32, 0]} castShadow>
+              <cylinderGeometry args={[0.16, 0.18, 0.65, 12]} />
+              <meshStandardMaterial color="#dc2626" roughness={0.45} metalness={0.3} />
+            </mesh>
+            {/* Top Cap Bonnet */}
+            <mesh position={[0, 0.68, 0]}>
+              <cylinderGeometry args={[0.12, 0.18, 0.15, 12]} />
+              <meshStandardMaterial color="#b91c1c" roughness={0.4} />
+            </mesh>
+            <mesh position={[0, 0.78, 0]}>
+              <sphereGeometry args={[0.07, 10, 8]} />
+              <meshStandardMaterial color="#991b1b" />
+            </mesh>
+            {/* Side Hose Outlets */}
+            <mesh position={[0.18, 0.38, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.08, 0.08, 0.15, 8]} />
+              <meshStandardMaterial color="#f59e0b" metalness={0.8} />
+            </mesh>
+            <mesh position={[-0.18, 0.38, 0]} rotation={[0, 0, -Math.PI / 2]}>
+              <cylinderGeometry args={[0.08, 0.08, 0.15, 8]} />
+              <meshStandardMaterial color="#f59e0b" metalness={0.8} />
+            </mesh>
+          </group>
+        ))
+      )}
+
+      {/* Road Asphalt Fissure Cracks (Panel 1 Match) */}
+      {[-32, -8, 8].map((zC, cI) => (
+        <group key={`crack-${cI}`} position={[0, 0.021, zC]} rotation={[0, cI * 0.4, 0]}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[11.5, 0.12]} />
+            <meshStandardMaterial color="#18181b" roughness={0.99} />
+          </mesh>
+          <mesh position={[0.5, 0.001, 0.2]} rotation={[-Math.PI / 2, 0, 0.25]}>
+            <planeGeometry args={[6.0, 0.08]} />
+            <meshStandardMaterial color="#18181b" roughness={0.99} />
+          </mesh>
+        </group>
+      ))}
+
       {/* 6. Overgrown Vegetation & Grass Tufts (Along Curbs and Cracks) */}
       {[-45, -35, -25, -12, 0, 8, 18, 28].map((z, idx) => (
         <group key={`foliage-w-${idx}`} position={[-7.7, 0.22, z]}>
