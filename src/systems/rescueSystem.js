@@ -11,9 +11,8 @@ export const rescueSystem = {
     return useGameStore.getState().survivors.find((s) => s.id === id);
   },
 
-  attemptRescue: (survivorId, supplyType) => {
+  attemptRescue: (survivorId, decisionType = 'PRIMARY_PROTOCOL') => {
     const store = useGameStore.getState();
-    return store.performRescue(survivorId, supplyType);
+    return store.performRescueDecision(survivorId, decisionType);
   }
 };
-

@@ -3,6 +3,7 @@ import { useThree, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { GameConfig } from './GameConfig';
 import { globalInput } from './core/InputManager';
+import { globalCollisions } from './core/CollisionManager';
 import { useGameStore } from '../store/gameStore';
 
 export default function CameraController() {
@@ -54,8 +55,8 @@ export default function CameraController() {
     document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     // Initial camera placement
-    camera.position.set(playerPosition[0] + 0.32, playerPosition[1] + 1.6, playerPosition[2] + 2.8);
-    camera.lookAt(playerPosition[0] + 0.15, playerPosition[1] + 1.3, playerPosition[2]);
+    camera.position.set(playerPosition[0] + 0.45, playerPosition[1] + 1.85, playerPosition[2] + 4.5);
+    camera.lookAt(playerPosition[0] + 0.2, playerPosition[1] + 1.25, playerPosition[2]);
 
     return () => {
       domElement.removeEventListener('click', handleCanvasClick);
@@ -93,16 +94,16 @@ export default function CameraController() {
       setCameraRotation(yaw.current, pitch.current);
     }
 
-    // Close Third-Person Over-The-Shoulder Camera Framing (Exact Match to User Reference Image 4)
+    // Spacious GTA V Style Third-Person Camera Framing (Eliminates character obstruction)
     const targetPlayerPos = new THREE.Vector3(
       playerPosition[0],
       playerPosition[1],
       playerPosition[2]
     );
 
-    const camDistance = 2.8; // Close, cinematic survival distance showing backpack & road
-    const camHeight = 1.62;
-    const shoulderOffset = 0.32; // Over the right shoulder
+    let camDistance = 4.4; // Pulled back for wide situational awareness and unobstructed road view
+    const camHeight = 1.85;
+    const shoulderOffset = 0.45; // Shifts character smoothly to left-center
 
     const cosPitch = Math.cos(pitch.current);
     const sinPitch = Math.sin(pitch.current);
@@ -113,22 +114,38 @@ export default function CameraController() {
     const rightX = cosYaw;
     const rightZ = -sinYaw;
 
-    // Target Camera 3D coordinates
-    const targetCamX = targetPlayerPos.x + sinYaw * cosPitch * camDistance + rightX * shoulderOffset;
+    // Check building bounding box collision to prevent camera clipping through walls
+    let targetCamX = targetPlayerPos.x + sinYaw * cosPitch * camDistance + rightX * shoulderOffset;
+    let targetCamZ = targetPlayerPos.z + cosYaw * cosPitch * camDistance + rightZ * shoulderOffset;
+
+    for (let i = 0; i < globalCollisions.boxes.length; i++) {
+      const b = globalCollisions.boxes[i];
+      if (
+        targetCamX > b.minX - 0.5 &&
+        targetCamX < b.maxX + 0.5 &&
+        targetCamZ > b.minZ - 0.5 &&
+        targetCamZ < b.maxZ + 0.5
+      ) {
+        camDistance = 2.4; // Pull camera closer when near buildings
+        targetCamX = targetPlayerPos.x + sinYaw * cosPitch * camDistance + rightX * (shoulderOffset * 0.6);
+        targetCamZ = targetPlayerPos.z + cosYaw * cosPitch * camDistance + rightZ * (shoulderOffset * 0.6);
+        break;
+      }
+    }
+
     const isMoving = useGameStore.getState().player.isMoving;
     const isSprinting = useGameStore.getState().player.isSprinting;
-    const bob = isMoving ? Math.sin(state.clock.getElapsedTime() * (isSprinting ? 12 : 8)) * (isSprinting ? 0.04 : 0.02) : 0;
-    const targetCamY = Math.max(0.65, targetPlayerPos.y + camHeight + sinPitch * camDistance + bob);
-    const targetCamZ = targetPlayerPos.z + cosYaw * cosPitch * camDistance + rightZ * shoulderOffset;
+    const bob = isMoving ? Math.sin(state.clock.getElapsedTime() * (isSprinting ? 12 : 8)) * (isSprinting ? 0.035 : 0.018) : 0;
+    const targetCamY = Math.max(0.7, targetPlayerPos.y + camHeight + sinPitch * camDistance + bob);
 
-    // Look-At Target (Upper back / neck center with subtle right offset)
-    const targetLookX = targetPlayerPos.x + rightX * (shoulderOffset * 0.25);
-    const targetLookY = targetPlayerPos.y + 1.32;
-    const targetLookZ = targetPlayerPos.z + rightZ * (shoulderOffset * 0.25);
+    // Look-At Target (Upper back / eye level)
+    const targetLookX = targetPlayerPos.x + rightX * (shoulderOffset * 0.2);
+    const targetLookY = targetPlayerPos.y + 1.25;
+    const targetLookZ = targetPlayerPos.z + rightZ * (shoulderOffset * 0.2);
 
     // Smooth cinematic tracking
-    currentPos.current.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 14 * dt);
-    currentLookAt.current.lerp(new THREE.Vector3(targetLookX, targetLookY, targetLookZ), 18 * dt);
+    currentPos.current.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 12 * dt);
+    currentLookAt.current.lerp(new THREE.Vector3(targetLookX, targetLookY, targetLookZ), 16 * dt);
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentLookAt.current);
@@ -136,3 +153,4 @@ export default function CameraController() {
 
   return null;
 }
+

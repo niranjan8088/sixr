@@ -19,7 +19,11 @@ export class CollisionManager {
    * Register a building or wall AABB [minX, minZ, maxX, maxZ]
    * Prevents duplicates if registered with the same label.
    */
-  addBox(minX, minZ, maxX, maxZ, label = 'obstacle') {
+  addBox(x1, z1, x2, z2, label = 'obstacle') {
+    const minX = Math.min(x1, x2);
+    const maxX = Math.max(x1, x2);
+    const minZ = Math.min(z1, z2);
+    const maxZ = Math.max(z1, z2);
     const existingIdx = this.boxes.findIndex((b) => b.label === label);
     if (existingIdx !== -1) {
       this.boxes[existingIdx] = { minX, minZ, maxX, maxZ, label };

@@ -160,7 +160,7 @@ export default function Player() {
   });
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} scale={[0.88, 0.88, 0.88]}>
       {/* Soft Ground Contact Shadow */}
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0, 0.62, 24]} />
