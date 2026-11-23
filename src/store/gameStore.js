@@ -59,6 +59,9 @@ export const useGameStore = create((set, get) => ({
   // Currently focused survivor for triage / rescue modal
   activeRescueSurvivor: null,
 
+  // Active Hazard Zone (e.g. 'TOXIC SMOKE', 'STRUCTURAL FIRE')
+  activeHazard: null,
+
   // Mission Score and Statistics
   score: {
     totalPoints: 0,
@@ -136,8 +139,12 @@ export const useGameStore = create((set, get) => ({
     set({ cameraRotation: { yaw, pitch } });
   },
 
+  setActiveHazard: (hazard) => {
+    set({ activeHazard: hazard });
+  },
+
   updateTimer: (delta) => {
-    const { phase, mission } = get();
+    const { phase, mission, player, activeHazard } = get();
     if (phase !== GAME_PHASES.PLAYING && phase !== GAME_PHASES.EXTRACTION) return;
 
     const newTimer = Math.max(0, mission.timer - delta);
@@ -149,7 +156,19 @@ export const useGameStore = create((set, get) => ({
       return;
     }
 
+    // Health logic: Environmental Hazard damages suit integrity; clean air slowly recovers
+    let currentHealth = player.health;
+    if (activeHazard) {
+      currentHealth = Math.max(15, currentHealth - delta * 3.5);
+    } else if (currentHealth < 100) {
+      currentHealth = Math.min(100, currentHealth + delta * 2.0);
+    }
+
     set({
+      player: {
+        ...player,
+        health: currentHealth
+      },
       mission: {
         ...mission,
         timer: newTimer,

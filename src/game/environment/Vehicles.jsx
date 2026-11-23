@@ -12,8 +12,6 @@ export default function Vehicles() {
     globalCollisions.addBox(3.4, 14.0, 6.2, 18.0, 'veh-suv');
     // Rusted Station Wagon (North path)
     globalCollisions.addBox(-5.8, -32.0, -2.4, -28.0, 'veh-wagon');
-    // Rusted Curbside Sedan (Image 2 match)
-    globalCollisions.addBox(-8.8, 0.0, -5.8, 4.0, 'veh-rust-sedan');
   }, []);
 
   return (
@@ -34,28 +32,6 @@ export default function Vehicles() {
           <planeGeometry args={[1.85, 0.68]} />
           <meshStandardMaterial color="#1a222c" roughness={0.12} metalness={0.85} />
         </mesh>
-
-        {/* Side Rear-View Mirrors (Driver & Passenger sides) */}
-        <group position={[-1.25, 0.2, 2.1]}>
-          <mesh>
-            <boxGeometry args={[0.08, 0.22, 0.14]} />
-            <meshStandardMaterial color="#1f2328" roughness={0.6} />
-          </mesh>
-          <mesh position={[-0.045, 0, 0]}>
-            <planeGeometry args={[0.12, 0.18]} rotation={[0, -Math.PI / 2, 0]} />
-            <meshStandardMaterial color="#cbd5e1" roughness={0.1} metalness={0.9} />
-          </mesh>
-        </group>
-        <group position={[1.25, 0.2, 2.1]}>
-          <mesh>
-            <boxGeometry args={[0.08, 0.22, 0.14]} />
-            <meshStandardMaterial color="#1f2328" roughness={0.6} />
-          </mesh>
-          <mesh position={[0.045, 0, 0]}>
-            <planeGeometry args={[0.12, 0.18]} rotation={[0, Math.PI / 2, 0]} />
-            <meshStandardMaterial color="#cbd5e1" roughness={0.1} metalness={0.9} />
-          </mesh>
-        </group>
 
         {/* Front Radiator Grille & Dual Headlights */}
         <mesh position={[0, -0.15, 2.71]}>
@@ -81,16 +57,6 @@ export default function Vehicles() {
         <mesh castShadow receiveShadow position={[0, 0.26, -0.6]}>
           <boxGeometry args={[2.5, 1.95, 3.8]} />
           <meshStandardMaterial color="#e0e4e8" roughness={0.55} metalness={0.15} />
-        </mesh>
-
-        {/* Side Medical Compartment Tinted Windows */}
-        <mesh position={[-1.26, 0.5, -0.6]}>
-          <planeGeometry args={[1.2, 0.55]} rotation={[0, -Math.PI / 2, 0]} />
-          <meshStandardMaterial color="#1a222c" roughness={0.15} metalness={0.8} />
-        </mesh>
-        <mesh position={[1.26, 0.5, -0.6]}>
-          <planeGeometry args={[1.2, 0.55]} rotation={[0, Math.PI / 2, 0]} />
-          <meshStandardMaterial color="#1a222c" roughness={0.15} metalness={0.8} />
         </mesh>
 
         {/* Red Emergency Chevron Stripe on Side Panels (Exact shape from Image 4!) */}
@@ -185,20 +151,10 @@ export default function Vehicles() {
           <boxGeometry args={[2.7, 2.1, 2.8]} />
           <meshStandardMaterial color="#b3180d" roughness={0.42} metalness={0.25} />
         </mesh>
-        {/* Authentic White Cab Roof Cap (North American Fire Engine Styling) */}
-        <mesh position={[0, 1.36, 2.6]}>
-          <boxGeometry args={[2.72, 0.12, 2.82]} />
-          <meshStandardMaterial color="#f1f5f9" roughness={0.3} metalness={0.2} />
-        </mesh>
         {/* Cab Windshield */}
         <mesh position={[0, 0.7, 4.02]} rotation={[0.2, 0, 0]}>
           <planeGeometry args={[2.2, 0.9]} />
           <meshStandardMaterial color="#1a2533" roughness={0.15} metalness={0.8} />
-        </mesh>
-        {/* Chrome Front Radiator Grille & Headlight Clusters */}
-        <mesh position={[0, 0, 4.04]}>
-          <boxGeometry args={[2.1, 0.65, 0.08]} />
-          <meshStandardMaterial color="#cbd5e1" roughness={0.15} metalness={0.95} />
         </mesh>
         {/* Chrome Front Heavy Bumper */}
         <mesh position={[0, -0.4, 4.05]}>
@@ -276,42 +232,6 @@ export default function Vehicles() {
             </mesh>
           ))
         )}
-      </group>
-
-      {/* =================================================================
-          4. ABANDONED RUSTED CURBSIDE SEDAN (Exact match to User Reference Image 2)
-          1980s 4-door sedan, rusted oxidized paint, cracked windows, flat tires
-         ================================================================= */}
-      <group position={[-7.2, 0.38, 2.0]} rotation={[-0.03, 0.18, 0.04]}>
-        {/* Main Lower Chassis / Body */}
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[1.9, 0.65, 4.2]} />
-          <meshStandardMaterial color="#854d27" roughness={0.95} metalness={0.2} />
-        </mesh>
-        {/* Cabin Glass & Roof */}
-        <mesh position={[0, 0.48, -0.2]}>
-          <boxGeometry args={[1.55, 0.52, 2.1]} />
-          <meshStandardMaterial color="#2d3748" roughness={0.3} metalness={0.7} />
-        </mesh>
-        {/* Slanted Windshield */}
-        <mesh position={[0, 0.44, 0.95]} rotation={[0.4, 0, 0]}>
-          <planeGeometry args={[1.4, 0.55]} />
-          <meshStandardMaterial color="#1e293b" roughness={0.2} metalness={0.8} />
-        </mesh>
-        {/* Flat Rusted Tires sunken in pavement edge */}
-        {[-0.96, 0.96].map((x) =>
-          [-1.25, 1.35].map((z) => (
-            <mesh key={`rust-w-${x}-${z}`} position={[x, -0.16, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.28, 0.28, 0.24, 12]} />
-              <meshStandardMaterial color="#27272a" roughness={0.95} />
-            </mesh>
-          ))
-        )}
-        {/* Weeds & Moss sprouting on rusted hood and trunk */}
-        <mesh position={[0.3, 0.36, 1.2]} rotation={[0.2, 0.5, 0]}>
-          <coneGeometry args={[0.22, 0.28, 5]} />
-          <meshStandardMaterial color="#4d7c0f" roughness={0.95} />
-        </mesh>
       </group>
     </group>
   );

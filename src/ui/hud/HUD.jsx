@@ -11,12 +11,44 @@ export default function HUD() {
   const survivors = useGameStore((state) => state.survivors);
   const interaction = useGameStore((state) => state.interaction);
   const cameraYaw = useGameStore((state) => state.cameraRotation.yaw);
+  const activeHazard = useGameStore((state) => state.activeHazard);
 
   const isLowTime = mission.timer <= 60;
   const radarScale = 0.95; // meters to radar pixels
 
   return (
     <div className="gta-hud-root">
+      {/* ========================================================
+          TOP-CENTER: ENVIRONMENTAL HAZARD WARNING BANNER
+         ======================================================== */}
+      {activeHazard && (
+        <div style={{
+          position: 'absolute',
+          top: '24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: 'rgba(239, 68, 68, 0.22)',
+          border: '1px solid rgba(239, 68, 68, 0.75)',
+          backdropFilter: 'blur(10px)',
+          padding: '8px 24px',
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          color: '#fecaca',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '13px',
+          fontWeight: 700,
+          letterSpacing: '1px',
+          boxShadow: '0 0 20px rgba(239, 68, 68, 0.4)',
+          animation: 'pulse 1.2s infinite ease-in-out',
+          zIndex: 90
+        }}>
+          <span style={{ fontSize: '16px' }}>⚠️</span>
+          <span>HAZARD DETECTED: {activeHazard}</span>
+        </div>
+      )}
+
       {/* ========================================================
           1. TOP-RIGHT: GTA-STYLE SLEEK OBJECTIVE & CLOCK CLUSTER
          ======================================================== */}
@@ -145,6 +177,10 @@ export default function HUD() {
         <div className="gta-vitals-container">
           {/* Health / Suit Integrity Bar */}
           <div className="gta-bar-wrapper">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', fontFamily: 'var(--font-mono)', color: '#94a3b8', marginBottom: '2px' }}>
+              <span>SUIT INTEGRITY</span>
+              <span style={{ color: player.health < 30 ? '#ef4444' : '#10b981', fontWeight: 700 }}>{Math.round(player.health)}%</span>
+            </div>
             <div className="gta-bar-track">
               <div
                 className="gta-bar-fill gta-bar-health"
@@ -155,6 +191,10 @@ export default function HUD() {
 
           {/* Exo-Stamina Bar */}
           <div className="gta-bar-wrapper">
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '9px', fontFamily: 'var(--font-mono)', color: '#94a3b8', marginBottom: '2px' }}>
+              <span>STAMINA</span>
+              <span style={{ color: '#0ea5e9', fontWeight: 700 }}>{Math.round(player.stamina)}%</span>
+            </div>
             <div className="gta-bar-track">
               <div
                 className="gta-bar-fill gta-bar-stamina"
