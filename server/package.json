@@ -1,0 +1,26 @@
+{
+  "name": "afterlight-backend",
+  "version": "0.1.0",
+  "description": "Lightweight Express backend for AFTERLIGHT hackathon game",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest --runInBand --forceExit"
+  },
+  "keywords": [],
+  "author": "Venki",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-validator": "^7.0.1",
+    "mongoose": "^8.5.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4",
+    "nodemon": "^3.1.4"
+  }
+}
