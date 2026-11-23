@@ -8,16 +8,24 @@
  * Interface for Rajesh: override CSS variables only.
  */
 
+import { useEffect } from 'react';
 import { useGameStore } from '../systems/gameStore.js';
 import { getMissionEvaluation } from '../systems/missionSystem.js';
 import { formatTime } from '../systems/scoringSystem.js';
 
 export default function ScoreScreen() {
-  const phase   = useGameStore(s => s.phase);
-  const score   = useGameStore(s => s.score);
+  const phase     = useGameStore(s => s.phase);
+  const score     = useGameStore(s => s.score);
   const survivors = useGameStore(s => s.survivors);
-  const timer   = useGameStore(s => s.missionTimer);
-  const restart = useGameStore(s => s.restartMission);
+  const timer     = useGameStore(s => s.missionTimer);
+  const restart   = useGameStore(s => s.restartMission);
+
+  // Automatically release pointer lock when ScoreScreen is shown
+  useEffect(() => {
+    if (phase === 'complete' && document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+  }, [phase]);
 
   if (phase !== 'complete') return null;
 

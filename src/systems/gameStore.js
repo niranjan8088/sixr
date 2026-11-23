@@ -10,7 +10,9 @@
  *   phase          : 'menu' | 'playing' | 'extraction' | 'complete' | 'failed'
  *   survivors      : SurvivorDef[]
  *   resources      : { medical, tools }
- *   activeSurvivor : id | null           ← set by Interactions, read by UI panel
+ *   activeSurvivor : id | null           ← survivor whose decision panel is open
+ *   decisionPanel  : boolean             ← whether decision panel is open
+ *   nearbySurvivorId: id | null          ← nearest survivor within interaction range
  *   decisions      : { [survivorId]: string }
  *   objectives     : ObjectiveDef[]
  *   score          : ScoreBreakdown
@@ -33,6 +35,7 @@ function buildInitialState() {
     resources: { medical: 3, tools: 2 },
     activeSurvivor: null,         // survivor id currently being interacted with
     decisionPanel: false,         // whether the decision panel is open
+    nearbySurvivorId: null,       // nearest survivor currently within interaction range
     decisions: {},                // { [survivorId]: choiceKey }
     objectives: MISSION_OBJECTIVES.map(o => ({ ...o })),
     score: null,                  // null until mission complete
@@ -51,7 +54,7 @@ export const useGameStore = create((set, get) => ({
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   startMission() {
-    set({ phase: 'playing', missionStarted: true, missionTimer: 0 });
+    set({ phase: 'playing', missionStarted: true, missionTimer: 0, extractionReached: false });
   },
 
   restartMission() {
@@ -65,6 +68,11 @@ export const useGameStore = create((set, get) => ({
   // ── Player position (called by Player.jsx each frame) ─────────────────────
   setPlayerPosition(pos) {
     set({ playerPosition: pos });
+  },
+
+  // ── Proximity State ───────────────────────────────────────────────────────
+  setNearbySurvivor(id) {
+    set({ nearbySurvivorId: id });
   },
 
   // ── Interaction ───────────────────────────────────────────────────────────
@@ -115,37 +123,36 @@ export const useGameStore = create((set, get) => ({
     );
 
     set({
-      survivors:   updatedSurvivors,
-      resources:   updatedResources,
-      decisions:   updatedDecisions,
-      objectives:  updatedObjectives,
-      activeSurvivor: null,
-      decisionPanel: false,
+      survivors:        updatedSurvivors,
+      resources:        updatedResources,
+      decisions:        updatedDecisions,
+      objectives:       updatedObjectives,
+      activeSurvivor:   null,
+      decisionPanel:    false,
+      nearbySurvivorId: null,
     });
 
-    // Check if only objectives left is extraction
+    // Check if all survivors are assessed -> advance to extraction phase
     get()._checkMissionState();
   },
 
   // ── Extraction ────────────────────────────────────────────────────────────
   triggerExtraction() {
     const state = get();
-    if (state.phase !== 'playing') return;
+    // Allow extraction during both 'playing' and 'extraction' phases
+    if (state.phase !== 'playing' && state.phase !== 'extraction') return;
+    if (state.extractionReached) return; // Prevent duplicate execution
 
-    // Player must have interacted with all reachable survivors first
-    const pendingSurvivors = state.survivors.filter(
-      s => s.state === 'waiting' && !s.interacted
-    );
-    if (pendingSurvivors.length > 0) {
-      // Soft warning — not blocking, but objectives reflect it
-    }
+    // Check if required survivor objectives are resolved (all survivors assessed)
+    const allAssessed = state.survivors.every(s => s.interacted);
+    if (!allAssessed) return;
 
     const updatedObjectives = updateObjectives(state.objectives, state.survivors, true);
     const finalScore = calculateScore({
-      survivors:   state.survivors,
-      resources:   state.resources,
+      survivors:    state.survivors,
+      resources:    state.resources,
       missionTimer: state.missionTimer,
-      decisions:   state.decisions,
+      decisions:    state.decisions,
     });
 
     set({
@@ -161,7 +168,7 @@ export const useGameStore = create((set, get) => ({
     const state = get();
     // All survivors interacted with → move to extraction phase hint
     const allInteracted = state.survivors.every(s => s.interacted);
-    if (allInteracted) {
+    if (allInteracted && state.phase === 'playing') {
       set({ phase: 'extraction' }); // signals player to head to extraction zone
     }
   },

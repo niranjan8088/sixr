@@ -12,8 +12,8 @@
  *   - Rajesh should NOT re-implement this panel; override CSS variables only.
  *
  * Keyboard shortcuts:
- *   E or Escape — close panel (cancel / return to world)
- *   1–4         — quick-select choice by index
+ *   Escape   — close panel (cancel / return to world)
+ *   1–4      — quick-select choice by index
  */
 
 import { useEffect, useCallback } from 'react';
@@ -81,24 +81,37 @@ function ChoiceButton({ choice, index, resources, onSelect }) {
 // Decision Panel
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Interactions() {
-  const decisionPanel  = useGameStore(s => s.decisionPanel);
+  const decisionPanel    = useGameStore(s => s.decisionPanel);
   const activeSurvivorId = useGameStore(s => s.activeSurvivor);
-  const survivors      = useGameStore(s => s.survivors);
-  const resources      = useGameStore(s => s.resources);
-  const applyDecision  = useGameStore(s => s.applyDecision);
-  const closePanel     = useGameStore(s => s.closeSurvivorPanel);
+  const survivors        = useGameStore(s => s.survivors);
+  const resources        = useGameStore(s => s.resources);
+  const applyDecision    = useGameStore(s => s.applyDecision);
+  const closePanel       = useGameStore(s => s.closeSurvivorPanel);
 
   const survivor = survivors.find(s => s.id === activeSurvivorId);
 
-  // Keyboard shortcuts
+  // When panel opens, ensure pointer lock is exited so mouse can click options
+  useEffect(() => {
+    if (decisionPanel && document.pointerLockElement) {
+      document.exitPointerLock();
+    }
+  }, [decisionPanel]);
+
+  // Keyboard shortcuts inside the decision panel:
+  // - Escape closes panel
+  // - 1-4 selects corresponding choice
   const handleKey = useCallback((e) => {
     if (!decisionPanel || !survivor) return;
-    if (e.code === 'Escape' || e.code === 'KeyE') {
+
+    if (e.code === 'Escape' || e.key === 'Escape') {
+      e.preventDefault();
       closePanel();
       return;
     }
+
     const num = parseInt(e.key, 10);
-    if (num >= 1 && num <= survivor.choices.length) {
+    if (!isNaN(num) && num >= 1 && num <= survivor.choices.length) {
+      e.preventDefault();
       applyDecision(survivor.id, survivor.choices[num - 1].key);
     }
   }, [decisionPanel, survivor, closePanel, applyDecision]);
@@ -164,7 +177,7 @@ export default function Interactions() {
 
         {/* Footer hint */}
         <div className="al-dp-footer">
-          Press <kbd>1</kbd>–<kbd>{survivor.choices.length}</kbd> to choose · <kbd>ESC</kbd> to cancel
+          Press <kbd>1</kbd>–<kbd>{survivor.choices.length}</kbd> to choose · Click button · <kbd>ESC</kbd> to cancel
         </div>
       </div>
     </>
@@ -189,9 +202,9 @@ const PANEL_CSS = `
 
   .al-dp-backdrop {
     position: fixed; inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.65);
     z-index: 999;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
   }
 
   .al-dp-panel {
@@ -207,7 +220,7 @@ const PANEL_CSS = `
     border-radius: var(--al-radius);
     color: var(--al-panel-text);
     font-family: 'Segoe UI', system-ui, sans-serif;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08);
   }
 
   .al-dp-header {

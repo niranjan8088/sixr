@@ -2,38 +2,48 @@
  * AFTERLIGHT — RescueZone.jsx
  *
  * Renders the extraction zone in the 3D scene.
- * Detects player proximity and triggers store.triggerExtraction().
+ * Detects player horizontal (X/Z) proximity and triggers store.triggerExtraction()
+ * once all required survivor objectives are resolved.
  *
  * Position: [0, 0, 20] — clearly separated from survivor locations.
  * Radius: 3.5 units.
  *
  * Visual: animated beacon column + ground ring.
- * Active only when phase === 'playing' || phase === 'extraction'.
+ * Active in phases 'playing' and 'extraction'.
  */
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Billboard } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGameStore } from '../systems/gameStore.js';
 
-const EXTRACTION_POSITION = [0, 0, 20];
-const EXTRACTION_RADIUS   = 3.5;
+export const EXTRACTION_POSITION = [0, 0, 20];
+export const EXTRACTION_RADIUS   = 3.5;
 
 export default function RescueZone() {
-  const phase           = useGameStore(s => s.phase);
-  const playerPosition  = useGameStore(s => s.playerPosition);
-  const triggerExtraction = useGameStore(s => s.triggerExtraction);
-  const extractionReached = useGameStore(s => s.extractionReached);
+  const phase              = useGameStore(s => s.phase);
+  const playerPosition     = useGameStore(s => s.playerPosition);
+  const survivors          = useGameStore(s => s.survivors);
+  const triggerExtraction  = useGameStore(s => s.triggerExtraction);
+  const extractionReached  = useGameStore(s => s.extractionReached);
 
-  const beamRef  = useRef();
-  const ringRef  = useRef();
+  const beamRef   = useRef();
+  const ringRef   = useRef();
   const triggered = useRef(false);
 
-  useFrame(({ clock }) => {
-    if (extractionReached) return;
-    if (phase !== 'playing' && phase !== 'extraction') return;
+  // Reset local triggered flag when extractionReached or phase resets
+  useEffect(() => {
+    if (!extractionReached) {
+      triggered.current = false;
+    }
+  }, [extractionReached, phase]);
 
+  // Check if all survivors have been resolved (interacted)
+  const allSurvivorsAssessed = survivors.length > 0 && survivors.every(s => s.interacted);
+  const canExtract = (phase === 'extraction' || allSurvivorsAssessed) && !extractionReached;
+
+  useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
 
     // Animate beacon beam
@@ -47,22 +57,30 @@ export default function RescueZone() {
       ringRef.current.rotation.z = t * 0.8;
     }
 
-    // Check player proximity
-    const pPos = new THREE.Vector3(...playerPosition);
-    const ePos = new THREE.Vector3(...EXTRACTION_POSITION);
-    const dist  = pPos.distanceTo(ePos);
+    if (extractionReached) return;
+    if (phase !== 'playing' && phase !== 'extraction') return;
 
-    if (dist <= EXTRACTION_RADIUS && !triggered.current) {
+    // Check player horizontal (X/Z) proximity
+    const [px, , pz] = playerPosition || [0, 0, 0];
+    const [ex, , ez] = EXTRACTION_POSITION;
+    const horizontalDist = Math.hypot(px - ex, pz - ez);
+
+    if (horizontalDist <= EXTRACTION_RADIUS && !triggered.current && canExtract) {
       triggered.current = true;
       triggerExtraction();
     }
   });
 
-  if (phase === 'menu' || phase === 'complete' || phase === 'failed') return null;
+  if (phase === 'menu') return null;
 
-  const isActive    = phase === 'extraction' || phase === 'playing';
-  const beamColor   = extractionReached ? '#22c55e' : (phase === 'extraction' ? '#38bdf8' : '#fbbf24');
-  const labelText   = extractionReached ? '✅ EXTRACTED' : (phase === 'extraction' ? '🚁 EXTRACTION — ENTER NOW' : '🚁 EXTRACTION');
+  const isActive  = phase === 'extraction' || canExtract;
+  const beamColor = extractionReached
+    ? '#22c55e'
+    : (isActive ? '#38bdf8' : '#fbbf24');
+
+  const labelText = extractionReached
+    ? '✅ EXTRACTED'
+    : (isActive ? '🚁 EXTRACTION — ENTER NOW' : '🚁 EXTRACTION (OBJECTIVES PENDING)');
 
   return (
     <group position={EXTRACTION_POSITION} name="extraction-zone">
@@ -124,7 +142,7 @@ export default function RescueZone() {
       <pointLight
         position={[0, 2, 0]}
         color={beamColor}
-        intensity={isActive ? 3 : 0.5}
+        intensity={isActive ? 3 : 0.8}
         distance={8}
         decay={2}
       />
@@ -141,7 +159,7 @@ export default function RescueZone() {
         >
           {labelText}
         </Text>
-        {!extractionReached && phase === 'extraction' && (
+        {!extractionReached && isActive && (
           <Text
             position={[0, -0.35, 0]}
             fontSize={0.16}
@@ -151,7 +169,7 @@ export default function RescueZone() {
             outlineWidth={0.015}
             outlineColor="#000000"
           >
-            Walk into the circle
+            Walk into the circle to extract
           </Text>
         )}
       </Billboard>

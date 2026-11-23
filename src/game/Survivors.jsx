@@ -3,16 +3,17 @@
  *
  * Renders the 3 survivors in the 3D scene.
  * Each survivor is a mesh at its defined position.
- * Proximity is detected here (distance to playerPosition from store).
+ * Proximity is detected and maintained in store.nearbySurvivorId.
  * Sets store.activeSurvivor when player is in range and presses E.
  *
  * Props: none (reads from useGameStore)
  * Does NOT own HUD — only 3D scene objects + range indicator.
  *
  * Interface for Rajesh's UI:
- *   store.activeSurvivor → id of nearest survivor in range
- *   store.decisionPanel  → true when panel should be shown
- *   store.survivors      → array of SurvivorDef (with state, interacted, etc.)
+ *   store.activeSurvivor   → id of survivor whose decision panel is open
+ *   store.decisionPanel    → true when panel is visible
+ *   store.nearbySurvivorId → id of nearest survivor currently within interaction range
+ *   store.survivors        → array of SurvivorDef (with state, interacted, etc.)
  */
 
 import { useRef, useEffect } from 'react';
@@ -25,57 +26,30 @@ import { getUrgencyColor, getConditionIcon } from '../systems/missionSystem.js';
 // ─────────────────────────────────────────────────────────────────────────────
 // Individual survivor mesh
 // ─────────────────────────────────────────────────────────────────────────────
-function SurvivorMesh({ survivor }) {
+function SurvivorMesh({ survivor, isNearby }) {
   const meshRef = useRef();
   const ringRef = useRef();
-
-  const playerPosition = useGameStore(s => s.playerPosition);
-  const phase          = useGameStore(s => s.phase);
-  const activeSurvivor = useGameStore(s => s.activeSurvivor);
-  const openPanel      = useGameStore(s => s.openSurvivorPanel);
-
-  const inRange = useRef(false);
-  const pos     = new THREE.Vector3(...survivor.position);
+  const phase = useGameStore(s => s.phase);
 
   // Urgency → color
   const urgencyColor = getUrgencyColor(survivor.urgency);
 
-  // Pulse animation
-  useFrame((_, delta) => {
+  // Pulse animation & visual feedback
+  useFrame(() => {
     if (!meshRef.current) return;
+    if (phase !== 'playing' && phase !== 'extraction') return;
 
-    // Skip interaction if already decided or mission not active
-    if (phase !== 'playing') return;
-
-    const pPos = new THREE.Vector3(...playerPosition);
-    const dist  = pPos.distanceTo(pos);
-    inRange.current = dist <= survivor.interactionRadius;
-
-    // Pulse the survivor model
+    // Pulse survivor model when pending
     if (!survivor.interacted) {
       const t = Date.now() * 0.003;
       meshRef.current.scale.setScalar(1 + Math.sin(t) * 0.05);
     }
 
-    // Pulse range ring
+    // Proximity range ring visibility
     if (ringRef.current) {
-      ringRef.current.visible = inRange.current && !survivor.interacted;
+      ringRef.current.visible = isNearby && !survivor.interacted;
     }
   });
-
-  // Keyboard listener for E key
-  useEffect(() => {
-    function onKeyDown(e) {
-      if (e.code !== 'KeyE') return;
-      if (survivor.interacted) return;
-      if (phase !== 'playing') return;
-      if (!inRange.current) return;
-      if (activeSurvivor && activeSurvivor !== survivor.id) return;
-      openPanel(survivor.id);
-    }
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [survivor.id, survivor.interacted, phase, activeSurvivor, openPanel]);
 
   // ── Determine appearance based on state ──────────────────────────────────
   const stateColors = {
@@ -88,9 +62,8 @@ function SurvivorMesh({ survivor }) {
 
   return (
     <group position={survivor.position}>
-      {/* Survivor body — simple capsule */}
+      {/* Survivor body — capsule */}
       <mesh ref={meshRef} castShadow>
-        {/* Torso */}
         <capsuleGeometry args={[0.3, 0.8, 8, 16]} />
         <meshStandardMaterial color={color} roughness={0.6} metalness={0.1} />
       </mesh>
@@ -103,8 +76,13 @@ function SurvivorMesh({ survivor }) {
 
       {/* Interaction range ring (ground level) */}
       <group ref={ringRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.45, 0]}>
-        <Ring args={[survivor.interactionRadius - 0.1, survivor.interactionRadius, 64]}>
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.4} side={THREE.DoubleSide} />
+        <Ring args={[survivor.interactionRadius - 0.15, survivor.interactionRadius, 64]}>
+          <meshBasicMaterial
+            color={isNearby ? '#38bdf8' : '#ffffff'}
+            transparent
+            opacity={isNearby ? 0.7 : 0.3}
+            side={THREE.DoubleSide}
+          />
         </Ring>
       </group>
 
@@ -121,11 +99,11 @@ function SurvivorMesh({ survivor }) {
           {`${getConditionIcon(survivor.condition)} ${survivor.name}`}
         </Text>
 
-        {/* Urgency badge */}
+        {/* Urgency / Interaction badge */}
         <Text
           position={[0, -0.25, 0]}
           fontSize={0.13}
-          color={survivor.interacted ? '#6b7280' : urgencyColor}
+          color={survivor.interacted ? '#6b7280' : (isNearby ? '#38bdf8' : urgencyColor)}
           anchorX="center"
           anchorY="middle"
           outlineWidth={0.015}
@@ -133,7 +111,9 @@ function SurvivorMesh({ survivor }) {
         >
           {survivor.interacted
             ? `[${survivor.state.replace('_', ' ').toUpperCase()}]`
-            : `[${survivor.urgency.toUpperCase()}] Press E`}
+            : (isNearby
+                ? `▶ PRESS E TO RESCUE ◀`
+                : `[${survivor.urgency.toUpperCase()}]`)}
         </Text>
       </Billboard>
     </group>
@@ -141,18 +121,90 @@ function SurvivorMesh({ survivor }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Survivors container
+// Survivors container: Centralized proximity detection & interaction management
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Survivors() {
-  const survivors = useGameStore(s => s.survivors);
-  const phase     = useGameStore(s => s.phase);
+  const survivors        = useGameStore(s => s.survivors);
+  const phase            = useGameStore(s => s.phase);
+  const nearbySurvivorId = useGameStore(s => s.nearbySurvivorId);
+  const setNearbySurvivor = useGameStore(s => s.setNearbySurvivor);
+  const openSurvivorPanel = useGameStore(s => s.openSurvivorPanel);
+
+  // Continuous frame-based distance evaluation (XZ planar distance, immune to eye-height offset)
+  useFrame(() => {
+    if (phase !== 'playing' && phase !== 'extraction') {
+      if (nearbySurvivorId !== null) setNearbySurvivor(null);
+      return;
+    }
+
+    const state = useGameStore.getState();
+    const [px, , pz] = state.playerPosition || [0, 0, 0];
+
+    let closestSurvivor = null;
+    let closestDist = Infinity;
+
+    for (const survivor of state.survivors) {
+      if (survivor.interacted) continue;
+
+      const [sx, , sz] = survivor.position;
+      const dist = Math.hypot(px - sx, pz - sz);
+
+      if (dist <= survivor.interactionRadius && dist < closestDist) {
+        closestDist = dist;
+        closestSurvivor = survivor;
+      }
+    }
+
+    const newNearbyId = closestSurvivor ? closestSurvivor.id : null;
+    if (state.nearbySurvivorId !== newNearbyId) {
+      setNearbySurvivor(newNearbyId);
+    }
+  });
+
+  // Single centralized Keydown handler for E interaction
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.code !== 'KeyE' && e.key !== 'e' && e.key !== 'E') return;
+
+      const state = useGameStore.getState();
+      if (state.phase !== 'playing' && state.phase !== 'extraction') return;
+      if (state.decisionPanel || state.activeSurvivor) return; // Prevent duplicate triggers
+
+      const [px, , pz] = state.playerPosition || [0, 0, 0];
+
+      // Find closest un-interacted survivor in range
+      let targetSurvivor = null;
+      let minDistance = Infinity;
+
+      for (const s of state.survivors) {
+        if (s.interacted) continue;
+        const [sx, , sz] = s.position;
+        const dist = Math.hypot(px - sx, pz - sz);
+        if (dist <= s.interactionRadius && dist < minDistance) {
+          minDistance = dist;
+          targetSurvivor = s;
+        }
+      }
+
+      if (targetSurvivor) {
+        openSurvivorPanel(targetSurvivor.id);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [openSurvivorPanel]);
 
   if (phase === 'menu') return null;
 
   return (
     <group name="survivors">
       {survivors.map(survivor => (
-        <SurvivorMesh key={survivor.id} survivor={survivor} />
+        <SurvivorMesh
+          key={survivor.id}
+          survivor={survivor}
+          isNearby={nearbySurvivorId === survivor.id}
+        />
       ))}
     </group>
   );
