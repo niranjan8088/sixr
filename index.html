@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AFTERLIGHT — Mission 01</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body, #root {
+        margin: 0; padding: 0;
+        width: 100vw; height: 100vh;
+        overflow: hidden;
+        background: #0a0f19;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div
+      id="game-canvas-click"
+      style="position:fixed;inset:0;z-index:1;cursor:crosshair;"
+      title="Click to lock mouse"
+    ></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
