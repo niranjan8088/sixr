@@ -3,8 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export default function Atmosphere() {
-  const moteCount = 240;
-  const emberCount = 80;
+  const moteCount = 50;
+  const emberCount = 16;
   const motesRef = useRef();
   const embersRef = useRef();
 
@@ -14,11 +14,11 @@ export default function Atmosphere() {
     for (let i = 0; i < moteCount; i++) {
       arr.push({
         x: (Math.random() - 0.5) * 80,
-        y: Math.random() * 12 + 0.3,
-        z: (Math.random() - 0.5) * 110 - 20,
-        speedY: 0.15 + Math.random() * 0.3,
-        swaySpeed: 0.8 + Math.random() * 1.5,
-        size: 0.03 + Math.random() * 0.05
+        y: Math.random() * 10 + 0.3,
+        z: (Math.random() - 0.5) * 100 - 20,
+        speedY: 0.15 + Math.random() * 0.25,
+        swaySpeed: 0.8 + Math.random() * 1.2,
+        size: 0.035 + Math.random() * 0.04
       });
     }
     return arr;
@@ -29,12 +29,11 @@ export default function Atmosphere() {
     const arr = [];
     for (let i = 0; i < emberCount; i++) {
       arr.push({
-        x: -14 + (Math.random() - 0.5) * 16,
-        y: Math.random() * 8 + 0.5,
-        z: -11 + (Math.random() - 0.5) * 20,
-        speedY: 0.4 + Math.random() * 0.6,
-        speedX: (Math.random() - 0.5) * 0.3,
-        size: 0.04 + Math.random() * 0.05
+        x: -14 + (Math.random() - 0.5) * 14,
+        y: Math.random() * 7 + 0.5,
+        z: -11 + (Math.random() - 0.5) * 16,
+        speedY: 0.35 + Math.random() * 0.5,
+        size: 0.04 + Math.random() * 0.04
       });
     }
     return arr;
@@ -43,15 +42,15 @@ export default function Atmosphere() {
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state, delta) => {
-    const dt = Math.min(delta, 0.1);
+    const dt = Math.min(delta, 0.05);
     const time = state.clock.getElapsedTime();
 
     if (motesRef.current) {
       motes.forEach((m, i) => {
         m.y += m.speedY * dt;
-        m.x += Math.sin(time * m.swaySpeed + i) * dt * 0.25;
+        m.x += Math.sin(time * m.swaySpeed + i) * dt * 0.2;
 
-        if (m.y > 12) {
+        if (m.y > 10) {
           m.y = 0.3;
           m.x = (Math.random() - 0.5) * 80;
         }
@@ -67,11 +66,11 @@ export default function Atmosphere() {
     if (embersRef.current) {
       embers.forEach((e, i) => {
         e.y += e.speedY * dt;
-        e.x += Math.sin(time * 2 + i) * dt * 0.4;
+        e.x += Math.sin(time * 2 + i) * dt * 0.3;
 
-        if (e.y > 9) {
+        if (e.y > 8) {
           e.y = 0.5;
-          e.x = -14 + (Math.random() - 0.5) * 16;
+          e.x = -14 + (Math.random() - 0.5) * 14;
         }
 
         dummy.position.set(e.x, e.y, e.z);
@@ -85,28 +84,22 @@ export default function Atmosphere() {
 
   return (
     <group>
-      {/* Natural Daytime Aerial Perspective Fog (Soft atmospheric horizon haze) */}
-      <fogExp2 attach="fog" args={['#96b2ce', 0.009]} />
+      {/* Soft Aerial Perspective Fog (Color perfectly matches sky horizon) */}
+      <fogExp2 attach="fog" args={['#8faec9', 0.0085]} />
 
-      {/* Daytime Celestial Sky Dome */}
-      <mesh position={[0, 30, -30]}>
-        <sphereGeometry args={[140, 24, 16]} />
-        <meshBasicMaterial color="#7ba0c4" side={THREE.BackSide} />
-      </mesh>
-
-      {/* Subtle Sun Flare Glow on Horizon */}
-      <mesh position={[60, 45, -20]} rotation={[0, -0.6, 0]}>
-        <planeGeometry args={[50, 50]} />
-        <meshBasicMaterial color="#fffaed" transparent opacity={0.15} />
+      {/* Full Seamless Celestial Sky Dome */}
+      <mesh position={[0, 0, 0]}>
+        <sphereGeometry args={[160, 32, 16]} />
+        <meshBasicMaterial color="#8faec9" side={THREE.BackSide} />
       </mesh>
 
       {/* Floating Sunlight Dust Motes */}
       <instancedMesh ref={motesRef} args={[null, null, moteCount]}>
         <dodecahedronGeometry args={[1, 0]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.6} />
       </instancedMesh>
 
-      {/* Floating Glowing Fiery Embers (Panel 4) */}
+      {/* Floating Glowing Fiery Embers */}
       <instancedMesh ref={embersRef} args={[null, null, emberCount]}>
         <dodecahedronGeometry args={[1, 0]} />
         <meshBasicMaterial color="#f97316" />

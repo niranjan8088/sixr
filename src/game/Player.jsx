@@ -190,7 +190,7 @@ export default function Player() {
           <meshStandardMaterial color="#f8fafc" roughness={0.2} metalness={0.8} />
         </mesh>
 
-        {/* Tactical Radio Shoulder Transponder with Emergency Blinking Beacon */}
+        {/* Tactical Radio Shoulder Transponder */}
         <group position={[-0.22, 0.28, -0.04]}>
           <mesh>
             <boxGeometry args={[0.08, 0.14, 0.08]} />
@@ -201,12 +201,11 @@ export default function Player() {
             <cylinderGeometry args={[0.008, 0.008, 0.22, 6]} />
             <meshStandardMaterial color="#09090b" metalness={0.9} />
           </mesh>
-          {/* Blinking Cyan Beacon LED */}
+          {/* Blinking Cyan Beacon LED (Emissive, zero lag) */}
           <mesh position={[0, 0.06, 0.045]}>
             <sphereGeometry args={[0.022, 8, 8]} />
             <meshBasicMaterial color="#00ffcc" />
           </mesh>
-          <pointLight position={[0, 0.1, 0.1]} color="#00ffcc" intensity={1.2} distance={3} />
         </group>
 
         {/* Subdued Emergency Rescue Crest Patch */}
@@ -294,50 +293,54 @@ export default function Player() {
           </group>
         </group>
 
-        {/* 3. Head & Emergency Rescue Helmet with LED Headlamp (Image 2 Match!) */}
+        {/* 3. Head & Elite Tactical Ballistic Helmet with Goggles (AAA Game Style) */}
         <group ref={headRef} position={[0, 0.48, 0]}>
-          {/* Natural Skin Head */}
+          {/* Natural Contoured Head */}
           <mesh castShadow position={[0, 0, 0]}>
-            <sphereGeometry args={[0.19, 18, 18]} />
+            <sphereGeometry args={[0.18, 16, 16]} />
             <meshStandardMaterial color="#c5a282" roughness={0.65} />
           </mesh>
 
-          {/* Emergency Rescue Safety Helmet */}
-          <group position={[0, 0.08, 0]}>
+          {/* Tactical Ballistic Helmet (Dark Matte Carbon/Slate - Eliminates Cartoonish Yellow Ball!) */}
+          <group position={[0, 0.06, -0.01]}>
             <mesh position={[0, 0, 0]} castShadow>
-              <sphereGeometry args={[0.22, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.58]} />
-              <meshStandardMaterial color="#f59e0b" roughness={0.4} metalness={0.2} />
-            </mesh>
-            {/* Helmet Front Peak / Brim */}
-            <mesh position={[0, -0.05, 0.18]} rotation={[0.3, 0, 0]}>
-              <boxGeometry args={[0.32, 0.04, 0.14]} />
-              <meshStandardMaterial color="#d97706" roughness={0.5} />
-            </mesh>
-            {/* High-Vis Helmet Reflective Strips */}
-            <mesh position={[0, 0.04, 0.205]}>
-              <boxGeometry args={[0.24, 0.03, 0.02]} />
-              <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.8} />
+              <sphereGeometry args={[0.205, 18, 14, 0, Math.PI * 2, 0, Math.PI * 0.6]} />
+              <meshStandardMaterial color="#1e293b" roughness={0.65} metalness={0.35} />
             </mesh>
 
-            {/* Front LED Headlamp (Casting forward beam) */}
-            <mesh position={[0, 0.02, 0.22]}>
-              <boxGeometry args={[0.09, 0.06, 0.05]} />
-              <meshStandardMaterial color="#1f2937" metalness={0.7} />
+            {/* Tactical Goggle Strap Wrapping Around Back of Helmet */}
+            <mesh position={[0, -0.02, 0]}>
+              <cylinderGeometry args={[0.208, 0.208, 0.05, 18, 1, true]} />
+              <meshStandardMaterial color="#09090b" roughness={0.8} />
             </mesh>
-            <mesh position={[0, 0.02, 0.246]}>
-              <circleGeometry args={[0.03, 12]} />
-              <meshBasicMaterial color="#ffffff" />
+
+            {/* Tactical Ballistic Goggles across the brow (Dark Polarized Lens) */}
+            <group position={[0, -0.03, 0.17]}>
+              <mesh>
+                <boxGeometry args={[0.26, 0.08, 0.06]} />
+                <meshStandardMaterial color="#0f172a" roughness={0.15} metalness={0.9} />
+              </mesh>
+              <mesh position={[0, 0, 0.032]}>
+                <planeGeometry args={[0.23, 0.06]} />
+                <meshStandardMaterial color="#0284c7" roughness={0.1} metalness={0.95} transparent opacity={0.85} />
+              </mesh>
+            </group>
+
+            {/* NVG / Headlamp Brow Shroud Mount (Emissive, Zero Lag) */}
+            <mesh position={[0, 0.08, 0.19]}>
+              <boxGeometry args={[0.07, 0.05, 0.04]} />
+              <meshStandardMaterial color="#09090b" metalness={0.8} />
             </mesh>
-            {/* Forward Headlamp Flashlight Spot */}
-            <spotLight
-              position={[0, 0.02, 0.3]}
-              target-position={[0, -0.5, 8.0]}
-              angle={0.65}
-              penumbra={0.4}
-              intensity={2.8}
-              color="#fef08a"
-              distance={24}
-            />
+            <mesh position={[0, 0.08, 0.212]}>
+              <circleGeometry args={[0.018, 8]} />
+              <meshBasicMaterial color="#fef08a" />
+            </mesh>
+
+            {/* Subdued High-Vis Tactical Orange Identifier Patch on Helmet Crown */}
+            <mesh position={[0, 0.19, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.08, 0.12]} />
+              <meshStandardMaterial color="#ea580c" roughness={0.6} />
+            </mesh>
           </group>
         </group>
 

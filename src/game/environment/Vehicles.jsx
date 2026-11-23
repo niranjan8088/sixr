@@ -2,23 +2,47 @@ import React, { useEffect, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { globalCollisions } from '../core/CollisionManager';
 
-export default function Vehicles() {
-  const redStrobeRef = useRef();
-  const blueStrobeRef = useRef();
+/**
+ * Realistic Car Wheel with dark rubber tire tread, recessed alloy rim and lug hub.
+ * Replaces primitive black cylinders.
+ */
+function RealisticWheel({ radius = 0.35, width = 0.28, rimRadius = 0.22, color = '#1a1c1e' }) {
+  return (
+    <group rotation={[0, 0, Math.PI / 2]}>
+      {/* Outer Rubber Tire with Tread */}
+      <mesh castShadow receiveShadow>
+        <cylinderGeometry args={[radius, radius, width, 16]} />
+        <meshStandardMaterial color={color} roughness={0.92} metalness={0.05} />
+      </mesh>
+      {/* Recessed Alloy Rim (Outer side) */}
+      <mesh position={[0, width * 0.48, 0]}>
+        <cylinderGeometry args={[rimRadius, rimRadius, 0.03, 16]} />
+        <meshStandardMaterial color="#94a3b8" roughness={0.3} metalness={0.85} />
+      </mesh>
+      {/* Rim Spokes / Lug Nut Cap */}
+      <mesh position={[0, width * 0.51, 0]}>
+        <cylinderGeometry args={[rimRadius * 0.38, rimRadius * 0.38, 0.02, 8]} />
+        <meshStandardMaterial color="#334155" roughness={0.3} metalness={0.9} />
+      </mesh>
+    </group>
+  );
+}
 
+export default function Vehicles() {
+  const redLensRef = useRef();
+  const blueLensRef = useRef();
+
+  // Subtle material emissive strobe without invalidating GPU point lights
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    // Alternating sharp police emergency flashers
-    const redFlash = Math.sin(t * 14) > 0.2 ? 3.2 : 0.05;
-    const blueFlash = Math.sin(t * 14 + Math.PI) > 0.2 ? 3.2 : 0.05;
-
-    if (redStrobeRef.current) redStrobeRef.current.intensity = redFlash;
-    if (blueStrobeRef.current) blueStrobeRef.current.intensity = blueFlash;
+    const flash = Math.sin(t * 12) > 0.1;
+    if (redLensRef.current) redLensRef.current.opacity = flash ? 1.0 : 0.2;
+    if (blueLensRef.current) blueLensRef.current.opacity = !flash ? 1.0 : 0.2;
   });
 
   // Register vehicle colliders
   useEffect(() => {
-    // Paramedic Ambulance (Positioned along the roadside overgrown path, matching Image 4)
+    // Paramedic Ambulance (Roadside overgrown path, matching Image 4)
     globalCollisions.addBox(-11.5, -16.5, -7.5, -10.5, 'veh-ambulance');
     // Heavy Fire Engine Rescue Truck (East Intersection, matching Image 3)
     globalCollisions.addBox(5.0, 2.0, 9.5, 9.5, 'veh-fire-engine');
@@ -45,17 +69,18 @@ export default function Vehicles() {
           <meshStandardMaterial color="#d4d8dc" roughness={0.6} metalness={0.15} />
         </mesh>
 
-        {/* Slanted Windshield */}
-        <mesh position={[0, 0.32, 2.72]} rotation={[0.32, 0, 0]}>
-          <planeGeometry args={[1.85, 0.68]} />
-          <meshStandardMaterial color="#1a222c" roughness={0.12} metalness={0.85} />
+        {/* Slanted Aerodynamic Windshield with Black Rubber Trim */}
+        <mesh position={[0, 0.35, 2.72]} rotation={[0.32, 0, 0]}>
+          <planeGeometry args={[1.9, 0.72]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.12} metalness={0.88} />
         </mesh>
 
-        {/* Front Radiator Grille & Dual Headlights */}
+        {/* Front Radiator Grille & Chrome Surround */}
         <mesh position={[0, -0.15, 2.71]}>
           <boxGeometry args={[1.5, 0.42, 0.08]} />
           <meshStandardMaterial color="#1e1e1e" roughness={0.7} metalness={0.4} />
         </mesh>
+        {/* Dual High-Beam Halogen Headlights */}
         <mesh position={[-0.9, -0.15, 2.72]}>
           <boxGeometry args={[0.3, 0.22, 0.06]} />
           <meshBasicMaterial color="#fffbe8" />
@@ -65,7 +90,7 @@ export default function Vehicles() {
           <meshBasicMaterial color="#fffbe8" />
         </mesh>
 
-        {/* Black Heavy Front Bumper */}
+        {/* Black Heavy Front Bumper with Tow Hooks */}
         <mesh position={[0, -0.45, 2.78]}>
           <boxGeometry args={[2.4, 0.35, 0.22]} />
           <meshStandardMaterial color="#22252a" roughness={0.8} />
@@ -87,7 +112,7 @@ export default function Vehicles() {
           <meshStandardMaterial color="#b82519" roughness={0.45} />
         </mesh>
 
-        {/* Green Medical Cross Emblem on Ambulance Sides (Exactly like in Image 4!) */}
+        {/* Green Medical Cross Emblem on Ambulance Sides (Exact match to Image 4!) */}
         <group position={[1.27, 0.35, -0.6]} rotation={[0, Math.PI / 2, 0]}>
           <mesh position={[0, 0, 0]}>
             <planeGeometry args={[0.24, 0.72]} />
@@ -138,13 +163,12 @@ export default function Vehicles() {
           <meshBasicMaterial color="#e62010" />
         </mesh>
 
-        {/* Wheels (Partially sunken into roadside mud/grass) */}
+        {/* Realistic Wheels with Alloy Rims and Rubber Tires */}
         {[-1.15, 1.15].map((x) =>
           [-1.5, 1.6].map((z) => (
-            <mesh key={`amb-w-${x}-${z}`} position={[x, -0.44, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.42, 0.42, 0.34, 14]} />
-              <meshStandardMaterial color="#262420" roughness={0.92} />
-            </mesh>
+            <group key={`amb-w-${x}-${z}`} position={[x, -0.44, z]}>
+              <RealisticWheel radius={0.42} width={0.34} rimRadius={0.27} color="#262420" />
+            </group>
           ))
         )}
 
@@ -218,13 +242,12 @@ export default function Vehicles() {
           </mesh>
         </group>
 
-        {/* Heavy Fire Truck Wheels (6 Wheels) */}
+        {/* Heavy Fire Truck Wheels (6 Wheels with heavy alloy hubs) */}
         {[-1.38, 1.38].map((x) =>
           [-2.5, -1.0, 2.6].map((z) => (
-            <mesh key={`fire-w-${x}-${z}`} position={[x, -0.45, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.48, 0.48, 0.38, 16]} />
-              <meshStandardMaterial color="#1a1c20" roughness={0.85} />
-            </mesh>
+            <group key={`fire-w-${x}-${z}`} position={[x, -0.45, z]}>
+              <RealisticWheel radius={0.48} width={0.38} rimRadius={0.3} color="#181a1d" />
+            </group>
           ))
         )}
       </group>
@@ -241,23 +264,27 @@ export default function Vehicles() {
           <boxGeometry args={[1.65, 0.6, 2.2]} />
           <meshStandardMaterial color="#28322c" roughness={0.8} />
         </mesh>
+        {/* Slanted windshield */}
+        <mesh position={[0, 0.55, 0.9]} rotation={[0.4, 0, 0]}>
+          <planeGeometry args={[1.5, 0.65]} />
+          <meshStandardMaterial color="#1a2530" roughness={0.2} metalness={0.8} />
+        </mesh>
         {/* Wheels */}
         {[-1.02, 1.02].map((x) =>
           [-1.3, 1.3].map((z) => (
-            <mesh key={`sed-w-${x}-${z}`} position={[x, -0.22, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.34, 0.34, 0.26, 12]} />
-              <meshStandardMaterial color="#181a18" roughness={0.9} />
-            </mesh>
+            <group key={`sed-w-${x}-${z}`} position={[x, -0.22, z]}>
+              <RealisticWheel radius={0.34} width={0.26} rimRadius={0.22} color="#181a18" />
+            </group>
           ))
         )}
       </group>
 
       {/* =================================================================
           4. ABANDONED POLICE PATROL CRUISER (Panel 4 - Emergency Lights)
-          Black & white sedan, push-bumper, flashing RED & BLUE emergency lightbar
+          Black & white sedan, push-bumper, zero-lag blinking lens lightbar
          ================================================================= */}
       <group position={[-3.6, 0.45, -8.0]} rotation={[-0.02, 0.42, 0.03]}>
-        {/* Main Lower Chassis */}
+        {/* Main Lower Chassis with Wheel Well Indentations */}
         <mesh castShadow receiveShadow>
           <boxGeometry args={[2.0, 0.7, 4.4]} />
           <meshStandardMaterial color="#09090b" roughness={0.5} metalness={0.3} />
@@ -282,13 +309,19 @@ export default function Vehicles() {
           <meshStandardMaterial color="#09090b" roughness={0.5} />
         </mesh>
 
+        {/* Slanted Front & Rear Glass */}
+        <mesh position={[0, 0.54, 1.0]} rotation={[0.4, 0, 0]}>
+          <planeGeometry args={[1.5, 0.6]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.15} metalness={0.9} />
+        </mesh>
+
         {/* Heavy Black Steel Push-Bumper (Bullbar on front) */}
         <mesh position={[0, -0.05, 2.3]}>
           <boxGeometry args={[1.6, 0.55, 0.22]} />
           <meshStandardMaterial color="#18181b" metalness={0.9} />
         </mesh>
 
-        {/* Roof Emergency Lightbar (Red Left, Blue Right) */}
+        {/* Roof Emergency Lightbar (Red Left, Blue Right - Zero GPU Overhead) */}
         <group position={[0, 0.92, -0.2]}>
           <mesh>
             <boxGeometry args={[1.4, 0.12, 0.28]} />
@@ -297,51 +330,49 @@ export default function Vehicles() {
           {/* Red Left Beacon Lens */}
           <mesh position={[-0.45, 0.02, 0]}>
             <boxGeometry args={[0.42, 0.14, 0.24]} />
-            <meshBasicMaterial color="#ef4444" />
+            <meshBasicMaterial ref={redLensRef} color="#ef4444" transparent opacity={0.9} />
           </mesh>
           {/* Blue Right Beacon Lens */}
           <mesh position={[0.45, 0.02, 0]}>
             <boxGeometry args={[0.42, 0.14, 0.24]} />
-            <meshBasicMaterial color="#3b82f6" />
+            <meshBasicMaterial ref={blueLensRef} color="#3b82f6" transparent opacity={0.9} />
           </mesh>
-
-          {/* Dynamic Alternating Emergency Flasher PointLights */}
-          <pointLight
-            ref={redStrobeRef}
-            position={[-0.8, 0.3, 0]}
-            color="#ef4444"
-            distance={16}
-            decay={2}
-          />
-          <pointLight
-            ref={blueStrobeRef}
-            position={[0.8, 0.3, 0]}
-            color="#3b82f6"
-            distance={16}
-            decay={2}
-          />
         </group>
 
-        {/* Wheels */}
+        {/* Wheels with Realistic Alloy Rims */}
         {[-1.04, 1.04].map((x) =>
           [-1.35, 1.4].map((z) => (
-            <mesh key={`pol-w-${x}-${z}`} position={[x, -0.18, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.34, 0.34, 0.28, 14]} />
-              <meshStandardMaterial color="#18181b" roughness={0.9} />
-            </mesh>
+            <group key={`pol-w-${x}-${z}`} position={[x, -0.18, z]}>
+              <RealisticWheel radius={0.34} width={0.28} rimRadius={0.22} color="#18181b" />
+            </group>
           ))
         )}
       </group>
 
       {/* =================================================================
           5. ABANDONED NYC YELLOW TAXI CAB (Reference Image Exact Match!)
-          Weathered yellow body, checkerboard stripe, roof TAXI sign, flat tires
+          Weathered yellow body, checkerboard stripe, roof TAXI sign, aerodynamic glass
          ================================================================= */}
       <group position={[-5.2, 0.42, 7.0]} rotation={[-0.02, -0.32, 0.04]}>
         {/* Main Yellow Chassis */}
         <mesh castShadow receiveShadow>
           <boxGeometry args={[1.9, 0.65, 4.3]} />
           <meshStandardMaterial color="#ca8a04" roughness={0.7} metalness={0.2} />
+        </mesh>
+
+        {/* Front Hood Slope & Radiator Grille */}
+        <mesh position={[0, -0.05, 2.16]}>
+          <boxGeometry args={[1.6, 0.4, 0.08]} />
+          <meshStandardMaterial color="#1e1e1e" roughness={0.8} />
+        </mesh>
+        {/* Dual Yellow Headlamps */}
+        <mesh position={[-0.7, -0.05, 2.18]}>
+          <boxGeometry args={[0.26, 0.2, 0.04]} />
+          <meshBasicMaterial color="#fffbe8" />
+        </mesh>
+        <mesh position={[0.7, -0.05, 2.18]}>
+          <boxGeometry args={[0.26, 0.2, 0.04]} />
+          <meshBasicMaterial color="#fffbe8" />
         </mesh>
 
         {/* Checkerboard Taxi Side Stripe */}
@@ -370,6 +401,17 @@ export default function Vehicles() {
           <meshStandardMaterial color="#ca8a04" roughness={0.7} />
         </mesh>
 
+        {/* Slanted Windshield */}
+        <mesh position={[0, 0.5, 0.92]} rotation={[0.42, 0, 0]}>
+          <planeGeometry args={[1.45, 0.6]} />
+          <meshStandardMaterial color="#182230" roughness={0.15} metalness={0.85} />
+        </mesh>
+        {/* Slanted Rear Window */}
+        <mesh position={[0, 0.5, -1.32]} rotation={[-0.38, 0, 0]}>
+          <planeGeometry args={[1.45, 0.6]} />
+          <meshStandardMaterial color="#182230" roughness={0.15} metalness={0.85} />
+        </mesh>
+
         {/* Roof Illuminated TAXI Sign */}
         <group position={[0, 0.9, -0.2]}>
           <mesh>
@@ -382,13 +424,12 @@ export default function Vehicles() {
           </mesh>
         </group>
 
-        {/* Flat Rusted Wheels in Roadside Weeds */}
+        {/* Realistic Wheels with Alloy Rims & Rubber Tread */}
         {[-0.98, 0.98].map((x) =>
           [-1.3, 1.35].map((z) => (
-            <mesh key={`tax-w-${x}-${z}`} position={[x, -0.16, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.3, 0.3, 0.26, 12]} />
-              <meshStandardMaterial color="#27272a" roughness={0.95} />
-            </mesh>
+            <group key={`tax-w-${x}-${z}`} position={[x, -0.16, z]}>
+              <RealisticWheel radius={0.32} width={0.26} rimRadius={0.2} color="#27272a" />
+            </group>
           ))
         )}
 

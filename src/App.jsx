@@ -47,18 +47,20 @@ export default function App() {
       <div className="canvas-container">
         <Canvas
           shadows
-          camera={{ fov: 52, near: 0.1, far: 200, position: [0, 3, 20] }}
+          dpr={[1, 1.25]}
+          camera={{ fov: 50, near: 0.1, far: 180, position: [0, 3, 20] }}
           gl={{
             antialias: true,
             alpha: false,
+            powerPreference: 'high-performance',
             preserveDrawingBuffer: true,
             toneMapping: THREE.ACESFilmicToneMapping,
             toneMappingExposure: 1.15
           }}
           onCreated={({ gl }) => {
-            gl.setClearColor('#7ba0c4');
+            gl.setClearColor('#8faec9');
             gl.shadowMap.enabled = true;
-            gl.shadowMap.type = THREE.PCFSoftShadowMap;
+            gl.shadowMap.type = THREE.PCFShadowMap;
           }}
         >
           <World />
