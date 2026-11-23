@@ -16,15 +16,33 @@ export default function CameraController() {
   const isPointerLocked = useRef(false);
 
   const playerPosition = useGameStore((state) => state.player.position);
+  const phase = useGameStore((state) => state.phase);
+  const activeRescueSurvivor = useGameStore((state) => state.activeRescueSurvivor);
   const setCameraRotation = useGameStore((state) => state.setCameraRotation);
+
+  // Reset camera view angle on menu / restart
+  useEffect(() => {
+    if (phase === 'MENU' || phase === 'BRIEFING') {
+      yaw.current = 0;
+      pitch.current = 0.2;
+      setCameraRotation(0, 0.2);
+    }
+  }, [phase, setCameraRotation]);
 
   useEffect(() => {
     const domElement = gl.domElement;
 
-    // Optional pointer lock on canvas click
+    // Pointer lock on canvas click only during active gameplay without modal dialogs
     const handleCanvasClick = () => {
-      if (document.pointerLockElement !== domElement) {
-        domElement.requestPointerLock?.();
+      const currentPhase = useGameStore.getState().phase;
+      const isModalOpen = Boolean(useGameStore.getState().activeRescueSurvivor);
+      if (
+        (currentPhase === 'PLAYING' || currentPhase === 'EXTRACTION') &&
+        !isModalOpen
+      ) {
+        if (document.pointerLockElement !== domElement) {
+          domElement.requestPointerLock?.();
+        }
       }
     };
 
@@ -47,6 +65,12 @@ export default function CameraController() {
 
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.1);
+
+    // If modal is active, do not rotate camera
+    if (activeRescueSurvivor) {
+      globalInput.consumeMouseDelta();
+      return;
+    }
 
     // Consume mouse movement
     const { dx, dy } = globalInput.consumeMouseDelta();

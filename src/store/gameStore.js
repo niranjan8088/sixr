@@ -183,7 +183,11 @@ export const useGameStore = create((set, get) => ({
     if (survivor.status === SURVIVOR_STATUS.RESCUED) return false;
 
     // Check if required supply is available
-    if (supplyUsed && supplies[supplyUsed] > 0) {
+    if (supplyUsed) {
+      if (!supplies[supplyUsed] || supplies[supplyUsed] <= 0) {
+        get().showNotification(`Insufficient supplies to stabilize ${survivor.name}!`, 'error');
+        return false;
+      }
       supplies[supplyUsed] -= 1;
       GameEvents.emit(EVENT_TYPES.SUPPLY_USED, { supply: supplyUsed, remaining: supplies[supplyUsed] });
     }

@@ -17,6 +17,7 @@ export default function Player() {
   const headRef = useRef();
 
   const phase = useGameStore((state) => state.phase);
+  const activeRescueSurvivor = useGameStore((state) => state.activeRescueSurvivor);
   const cameraYaw = useGameStore((state) => state.cameraRotation.yaw);
   const updatePlayerPosition = useGameStore((state) => state.updatePlayerPosition);
 
@@ -27,16 +28,26 @@ export default function Player() {
   const animTime = useRef(0);
   const [stamina, setStamina] = useState(GameConfig.player.maxStamina);
 
-  // Sync initial position
+  // Sync initial position and handle mission restart
   useEffect(() => {
-    if (groupRef.current) {
-      groupRef.current.position.copy(position.current);
+    if (phase === GAME_PHASES.MENU || phase === GAME_PHASES.BRIEFING) {
+      position.current.set(...GameConfig.player.spawnPosition);
+      rotation.current = 0;
+      currentSpeed.current = 0;
+      setStamina(GameConfig.player.maxStamina);
+      if (groupRef.current) {
+        groupRef.current.position.copy(position.current);
+        groupRef.current.rotation.y = 0;
+      }
     }
-  }, []);
+  }, [phase]);
 
   useFrame((state, delta) => {
-    // Only update movement during active phases
-    if (phase !== GAME_PHASES.PLAYING && phase !== GAME_PHASES.EXTRACTION) {
+    // Only update movement during active phases without modal dialogs
+    if (
+      (phase !== GAME_PHASES.PLAYING && phase !== GAME_PHASES.EXTRACTION) ||
+      activeRescueSurvivor
+    ) {
       return;
     }
 

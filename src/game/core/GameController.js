@@ -34,7 +34,12 @@ export class GameControllerClass {
 
     if (interaction.active && interaction.targetId) {
       if (interaction.targetType === 'SURVIVOR') {
-        openRescueModal(interaction.targetId);
+        const survivor = useGameStore.getState().survivors.find((s) => s.id === interaction.targetId);
+        if (survivor && survivor.status !== 'RESCUED') {
+          openRescueModal(interaction.targetId);
+        } else if (survivor) {
+          useGameStore.getState().showNotification(`${survivor.name} is already stabilized.`, 'info', 2000);
+        }
       } else if (interaction.targetType === 'EXTRACTION') {
         triggerExtraction();
       }

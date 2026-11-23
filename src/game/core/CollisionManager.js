@@ -17,16 +17,38 @@ export class CollisionManager {
 
   /**
    * Register a building or wall AABB [minX, minZ, maxX, maxZ]
+   * Prevents duplicates if registered with the same label.
    */
   addBox(minX, minZ, maxX, maxZ, label = 'obstacle') {
-    this.boxes.push({ minX, minZ, maxX, maxZ, label });
+    const existingIdx = this.boxes.findIndex((b) => b.label === label);
+    if (existingIdx !== -1) {
+      this.boxes[existingIdx] = { minX, minZ, maxX, maxZ, label };
+    } else {
+      this.boxes.push({ minX, minZ, maxX, maxZ, label });
+    }
+    return () => this.removeBox(label);
   }
 
   /**
    * Register a cylinder/round obstacle [x, z, radius]
+   * Prevents duplicates if registered with the same label.
    */
   addCylinder(x, z, radius, label = 'prop') {
-    this.cylinders.push({ x, z, radius, label });
+    const existingIdx = this.cylinders.findIndex((c) => c.label === label);
+    if (existingIdx !== -1) {
+      this.cylinders[existingIdx] = { x, z, radius, label };
+    } else {
+      this.cylinders.push({ x, z, radius, label });
+    }
+    return () => this.removeCylinder(label);
+  }
+
+  removeBox(label) {
+    this.boxes = this.boxes.filter((b) => b.label !== label);
+  }
+
+  removeCylinder(label) {
+    this.cylinders = this.cylinders.filter((c) => c.label !== label);
   }
 
   /**

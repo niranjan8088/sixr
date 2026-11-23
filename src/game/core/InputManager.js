@@ -34,15 +34,21 @@ export class InputManager {
     this.onInteractCallback = onInteract;
     this.onPauseCallback = onPause;
 
+    this.handleBlur = () => this.reset();
+
     window.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('keyup', this.handleKeyUp);
     window.addEventListener('mousemove', this.handleMouseMove);
+    window.addEventListener('blur', this.handleBlur);
   }
 
   cleanup() {
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
     window.removeEventListener('mousemove', this.handleMouseMove);
+    if (this.handleBlur) {
+      window.removeEventListener('blur', this.handleBlur);
+    }
     this.reset();
   }
 
@@ -157,6 +163,8 @@ export class InputManager {
   }
 
   handleMouseMove(e) {
+    if (!this.enabled) return;
+
     // If pointer locked or mouse drag enabled
     if (document.pointerLockElement || e.buttons === 1 || e.buttons === 2) {
       this.mouse.dx += e.movementX || 0;

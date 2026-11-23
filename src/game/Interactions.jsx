@@ -19,6 +19,7 @@ export default function Interactions() {
 
   const prevActiveRef = useRef(false);
   const prevTargetIdRef = useRef(null);
+  const prevPromptRef = useRef('');
 
   useFrame(() => {
     if (phase !== GAME_PHASES.PLAYING && phase !== GAME_PHASES.EXTRACTION) {
@@ -33,6 +34,7 @@ export default function Interactions() {
         });
         prevActiveRef.current = false;
         prevTargetIdRef.current = null;
+        prevPromptRef.current = '';
       }
       return;
     }
@@ -82,7 +84,11 @@ export default function Interactions() {
     const isActive = closestTarget !== null;
 
     // Only update store when state changes to avoid unnecessary re-renders
-    if (isActive !== prevActiveRef.current || closestTarget !== prevTargetIdRef.current) {
+    if (
+      isActive !== prevActiveRef.current ||
+      closestTarget !== prevTargetIdRef.current ||
+      promptText !== prevPromptRef.current
+    ) {
       setInteraction({
         active: isActive,
         targetId: closestTarget,
@@ -93,6 +99,7 @@ export default function Interactions() {
       });
       prevActiveRef.current = isActive;
       prevTargetIdRef.current = closestTarget;
+      prevPromptRef.current = promptText;
     }
   });
 

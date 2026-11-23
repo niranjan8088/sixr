@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import World from './game/World';
 import { GameController } from './game/core/GameController';
+import { globalInput } from './game/core/InputManager';
 import { useGameStore } from './store/gameStore';
 import { GAME_PHASES } from './utils/constants';
 
@@ -25,6 +26,19 @@ export default function App() {
       GameController.destroy();
     };
   }, []);
+
+  // Synchronize input engine and pointer lock with game phases
+  useEffect(() => {
+    const isGameplay = phase === GAME_PHASES.PLAYING || phase === GAME_PHASES.EXTRACTION;
+    const isModalOpen = Boolean(activeRescueSurvivor);
+    globalInput.setEnabled(isGameplay && !isModalOpen);
+
+    if (!isGameplay || isModalOpen) {
+      if (document.pointerLockElement) {
+        document.exitPointerLock?.();
+      }
+    }
+  }, [phase, activeRescueSurvivor]);
 
   return (
     <div className="game-container">
