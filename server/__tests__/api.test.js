@@ -47,6 +47,44 @@ describe('AFTERLIGHT Backend API Test Suite', () => {
       expect(res.body.errors.some((e) => e.path === 'score' || e.msg.includes('Score'))).toBe(true);
     });
 
+    it('should reject request when score is negative', async () => {
+      const res = await request(app).post('/api/results').send({
+        missionId: 'M-1',
+        score: -50
+      });
+      expect(res.statusCode).toBe(400);
+      expect(res.body.errors.some((e) => e.path === 'score')).toBe(true);
+    });
+
+    it('should reject request when missionTime is negative', async () => {
+      const res = await request(app).post('/api/results').send({
+        missionId: 'M-1',
+        score: 500,
+        missionTime: -10
+      });
+      expect(res.statusCode).toBe(400);
+      expect(res.body.errors.some((e) => e.path === 'missionTime')).toBe(true);
+    });
+
+    it('should accept request when score is zero', async () => {
+      const res = await request(app).post('/api/results').send({
+        missionId: 'M-1',
+        score: 0
+      });
+      expect(res.statusCode).toBe(201);
+      expect(res.body.data.score).toBe(0);
+    });
+
+    it('should accept request when missionTime is zero', async () => {
+      const res = await request(app).post('/api/results').send({
+        missionId: 'M-1',
+        score: 100,
+        missionTime: 0
+      });
+      expect(res.statusCode).toBe(201);
+      expect(res.body.data.missionTime).toBe(0);
+    });
+
     it('should reject request when survivorsRescued is negative', async () => {
       const res = await request(app).post('/api/results').send({
         missionId: 'M-1',
@@ -170,39 +208,35 @@ describe('AFTERLIGHT Backend API Test Suite', () => {
       expect(res.body[2].playerName).toBe('Rookie');
     });
 
-    it('should retain best high score when a player submits multiple missions', async () => {
-      await request(app).post('/api/results').send({
+    it('should retain best high score, survivorsRescued, and timestamp when a lower score is submitted later', async () => {
+      const firstRes = await request(app).post('/api/results').send({
         playerId: 'player-1',
-        playerName: 'Venki',
-        missionId: 'm1',
-        score: 1000,
-        survivorsRescued: 1
-      });
-
-      // Better score in second run
-      await request(app).post('/api/results').send({
-        playerId: 'player-1',
-        playerName: 'Venki',
+        playerName: 'Venki Lead',
         missionId: 'm1',
         score: 2200,
-        survivorsRescued: 3
+        survivorsRescued: 5
       });
+      expect(firstRes.statusCode).toBe(201);
+      const originalTimestamp = firstRes.body.data.timestamp;
 
-      // Worse score in third run
-      await request(app).post('/api/results').send({
+      // Second submission: lower score and fewer survivors
+      const secondRes = await request(app).post('/api/results').send({
         playerId: 'player-1',
-        playerName: 'Venki',
+        playerName: 'Venki Alt',
         missionId: 'm1',
         score: 800,
-        survivorsRescued: 0
+        survivorsRescued: 1
       });
+      expect(secondRes.statusCode).toBe(201);
 
       const res = await request(app).get('/api/leaderboard');
       expect(res.statusCode).toBe(200);
       const player1Entry = res.body.find((e) => e.playerId === 'player-1');
       expect(player1Entry).toBeDefined();
-      expect(player1Entry.score).toBe(2200); // Kept highest score
-      expect(player1Entry.survivorsRescued).toBe(3);
+      expect(player1Entry.score).toBe(2200); // Retained highest score
+      expect(player1Entry.survivorsRescued).toBe(5); // Retained survivors from best run
+      expect(player1Entry.timestamp).toBe(originalTimestamp); // Retained timestamp from best run
+      expect(player1Entry.playerName).toBe('Venki Lead'); // Retained playerName from best run
     });
   });
 

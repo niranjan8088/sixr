@@ -15,7 +15,8 @@
 - [x] Accurately indicates fallback status (`"persistence": "in-memory"` or `"mongodb"`).
 
 ### B. Mission Results Persistence (`POST /api/results` & `/api/missions`)
-- [x] Input validation verifies required `score` is a numeric value.
+- [x] Input validation verifies required `score` is a numeric value and >= 0 (zero accepted, negative rejected).
+- [x] Input validation verifies `missionTime` is numeric and >= 0 when provided (zero accepted, negative rejected).
 - [x] Input validation checks `survivorsRescued` is a non-negative integer.
 - [x] Accepts either `missionId` or `missionName`.
 - [x] Gracefully handles optional fields (`playerId`, `playerName`, `missionTime`, `resourcesRemaining`, `outcome`).
@@ -30,6 +31,7 @@
 - [x] Returns HTTP `200 OK` with top 20 best scores.
 - [x] Scores sorted strictly descending (`highest score first`).
 - [x] Multiple submissions from the same player update and retain only their best (highest) score.
+- [x] Lower subsequent scores do not overwrite `survivorsRescued`, `timestamp`, or player details associated with the best score.
 
 ### E. Database Resilience & In-Memory Fallback
 - [x] Operates cleanly without MongoDB installed or configured.
@@ -42,9 +44,9 @@
 
 | Test Suite | Tests Run | Passed | Failed | Status |
 |------------|-----------|--------|--------|--------|
-| `__tests__/api.test.js` | 13 | 13 | 0 | **PASS** |
+| `__tests__/api.test.js` | 17 | 17 | 0 | **PASS** |
 | `__tests__/mongo-resilience.test.js` | 2 | 2 | 0 | **PASS** |
-| **Total** | **15** | **15** | **0** | **100% PASS** |
+| **Total** | **19** | **19** | **0** | **PASS** |
 
 ---
 
@@ -54,18 +56,22 @@
    - *Issue:* Missing server timeout configuration caused server to stall when provided an offline MongoDB URI.
    - *Fix:* Added `serverSelectionTimeoutMS: 2000` and conditional `isMongoReady()` checks.
 2. **Leaderboard Inversion / Multi-Submission:**
-   - *Issue:* Repeated runs from the same player overwrote high scores or accumulated points.
-   - *Fix:* Added high-score comparison (`score > existing.score`) and MongoDB `$max` atomic update.
+   - *Issue:* Repeated runs from the same player with a lower score could overwrite statistics (`survivorsRescued`, `timestamp`, `playerName`) associated with their best score.
+   - *Fix:* In-memory update now conditionally updates all fields only when `score > existing.score`. MongoDB updates now use a conditional query (`score: { $lt: score }`) combined with `$setOnInsert` for new players, ensuring inferior runs never overwrite best-run data.
 3. **Payload Field Discrepancies:**
    - *Issue:* Core and UI modules planned to send `missionName` while earlier schema enforced `missionId`.
    - *Fix:* Supported both `missionId` and `missionName` flexibly in validation and handler.
+4. **Negative Value Validation:**
+   - *Issue:* Score and missionTime did not reject negative inputs.
+   - *Fix:* Updated validation rules to require `score >= 0` and `missionTime >= 0` (zero accepted, negative rejected with 400).
 
 ---
 
 ## 4. Known Issues & Limitations
 
-- **In-Memory Volatility:** In pure in-memory mode (default when MongoDB is omitted), mission results and leaderboard reset if the server process restarts. This is documented and completely acceptable for the hackathon live demo.
-- **Frontend Code Arrival:** Frontend files (`Player.jsx`, `World.jsx`, `App.jsx`, UI styling) have not yet been pushed to git by team members Niranjan, Rajesh, Lukky, and Siddappa. Automated browser/Three.js rendering tests cannot run until their branches are pushed and merged into `integration`.
+- **In-Memory Volatility:** In pure in-memory mode (default when MongoDB is omitted), mission results and leaderboard reset if the server process restarts.
+- **MongoDB Test Environment:** Automated tests verify offline fallback and connection resilience. Live MongoDB operations rely on an external running MongoDB instance.
+- **Frontend Code Arrival:** Frontend files (`Player.jsx`, `World.jsx`, `App.jsx`, UI styling) have not yet been pushed to git by team members Niranjan, Rajesh, Lukky, and Siddappa. Full integration testing is queued upon receiving their PRs.
 
 ---
 
@@ -78,13 +84,13 @@
 
 ## 6. Performance Observations
 
-- Jest test suite execution time: **~3.0 seconds** across 15 tests.
+- Jest test suite execution time: **~3.2 seconds** across 19 tests.
 - Average endpoint response latency (in-memory): **< 5ms**.
 - Zero memory leaks detected during test teardown.
 
 ---
 
-## 7. Final Readiness
+## 7. Current Readiness
 
-- **Backend Readiness:** **100% READY FOR HACKATHON DEMO**
-- **Git State:** Clean branch `feature/backend-qa`, ready for Pull Request to `integration`.
+- **Backend Readiness:** Ready for integration testing and hackathon demo.
+- **Git State:** Working on branch `feature/backend-qa`, ready for code review before commit.

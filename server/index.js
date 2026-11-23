@@ -88,7 +88,9 @@ app.get('/api/health', (req, res) => {
 
 // Validation middleware for mission results
 const validateMissionResult = [
-  body('score').isNumeric().withMessage('Score must be a valid number'),
+  body('score')
+    .isFloat({ min: 0 })
+    .withMessage('Score must be a non-negative number'),
   body('playerId').optional().isString().trim(),
   body('playerName').optional().isString().trim(),
   body('survivorsRescued')
@@ -97,8 +99,8 @@ const validateMissionResult = [
     .withMessage('survivorsRescued must be an integer >= 0'),
   body('missionTime')
     .optional()
-    .isNumeric()
-    .withMessage('missionTime must be a number'),
+    .isFloat({ min: 0 })
+    .withMessage('missionTime must be a non-negative number'),
   body('resourcesRemaining')
     .optional()
     .isObject()
@@ -158,8 +160,8 @@ async function recordMissionResult(req, res) {
       leaderboard[existingPlayerIndex].score = score;
       leaderboard[existingPlayerIndex].survivorsRescued = survivorsRescued;
       leaderboard[existingPlayerIndex].timestamp = timestamp;
+      leaderboard[existingPlayerIndex].playerName = playerName;
     }
-    leaderboard[existingPlayerIndex].playerName = playerName;
   } else {
     leaderboard.push({
       playerId,
@@ -176,18 +178,36 @@ async function recordMissionResult(req, res) {
       const doc = new MissionModel(record);
       await doc.save();
 
-      await LeaderboardModel.findOneAndUpdate(
-        { playerId },
+      // Atomically update leaderboard only if new score is strictly greater than current best
+      const updated = await LeaderboardModel.findOneAndUpdate(
+        { playerId, score: { $lt: score } },
         {
-          $max: { score },
           $set: {
+            score,
             playerName,
             survivorsRescued,
             timestamp
           }
         },
-        { upsert: true, new: true }
+        { new: true }
       );
+
+      // If no existing record with lower score was found, handle new player insertion atomically
+      if (!updated) {
+        await LeaderboardModel.findOneAndUpdate(
+          { playerId },
+          {
+            $setOnInsert: {
+              playerId,
+              playerName,
+              score,
+              survivorsRescued,
+              timestamp
+            }
+          },
+          { upsert: true, new: true }
+        );
+      }
     } catch (mongoErr) {
       console.warn('MongoDB save failed, retained in-memory:', mongoErr.message);
     }
