@@ -1,6 +1,4 @@
 import { useGameStore } from '../store/gameStore';
-import { GameEvents, EVENT_TYPES } from '../game/core/GameEvents';
-import { GAME_PHASES } from '../utils/constants';
 
 /**
  * missionSystem
@@ -8,6 +6,8 @@ import { GAME_PHASES } from '../utils/constants';
  */
 export const missionSystem = {
   getMissionState: () => useGameStore.getState().mission,
+
+  getObjectives: () => useGameStore.getState().objectives,
 
   startMission: () => {
     useGameStore.getState().startMission();
@@ -32,4 +32,3 @@ export const missionSystem = {
     useGameStore.getState().completeMission(success);
   }
 };
-
