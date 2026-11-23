@@ -2,115 +2,88 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 
 export default function Lighting() {
-  const strobeRedRef = useRef();
-  const strobeBlueRef = useRef();
-  const fireGlow1Ref = useRef();
-  const fireGlow2Ref = useRef();
+  const ambulanceLightRef = useRef();
+  const fireEngineLightRef = useRef();
   const beaconLightRef = useRef();
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
 
-    // Emergency vehicle alternating dual-flash (Red / Blue)
-    const redFlash = Math.sin(t * 12) > 0 ? 3.5 : 0.2;
-    const blueFlash = Math.sin(t * 12 + Math.PI) > 0 ? 3.5 : 0.2;
-    if (strobeRedRef.current) strobeRedRef.current.intensity = redFlash;
-    if (strobeBlueRef.current) strobeBlueRef.current.intensity = blueFlash;
+    // Subtle pulsing emergency beacon on abandoned rescue vehicles
+    const flash = Math.sin(t * 8) > 0 ? 2.5 : 0.1;
+    if (ambulanceLightRef.current) ambulanceLightRef.current.intensity = flash;
+    if (fireEngineLightRef.current) fireEngineLightRef.current.intensity = Math.sin(t * 8 + Math.PI) > 0 ? 2.5 : 0.1;
 
-    // Organic fire flicker
-    if (fireGlow1Ref.current) {
-      fireGlow1Ref.current.intensity = 2.4 + Math.sin(t * 8) * 0.5 + Math.cos(t * 15) * 0.3;
-    }
-    if (fireGlow2Ref.current) {
-      fireGlow2Ref.current.intensity = 2.0 + Math.sin(t * 9 + 1) * 0.6 + Math.cos(t * 13) * 0.2;
-    }
-
-    // Extraction Helipad beacon
+    // Evac helipad beacon
     if (beaconLightRef.current) {
-      beaconLightRef.current.intensity = 2.8 + Math.sin(t * 3) * 1.0;
+      beaconLightRef.current.intensity = 2.5 + Math.sin(t * 3) * 1.0;
     }
   });
 
   return (
     <group>
-      {/* Rich Hemispheric Lighting (Sky cool blue-slate, Ground warm urban asphalt bounce) */}
+      {/* 1. Natural Daylight Hemispheric Ambient (Bright blue sky, warm earth ground bounce) */}
       <hemisphereLight
-        skyColor="#567292"
-        groundColor="#252a32"
+        skyColor="#aed4f5"
+        groundColor="#5c6352"
         intensity={1.4}
       />
 
-      {/* Cinematic Main Moonlight / Atmospheric Key Light */}
+      {/* 2. Direct Golden Sunlight (Realistic late afternoon sun casting long, crisp shadows) */}
       <directionalLight
-        position={[45, 65, 35]}
-        intensity={2.4}
-        color="#c8dcfa"
+        position={[45, 55, 30]}
+        intensity={3.2}
+        color="#fff4dd"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
         shadow-camera-near={0.5}
-        shadow-camera-far={160}
-        shadow-camera-left={-60}
-        shadow-camera-right={60}
-        shadow-camera-top={60}
-        shadow-camera-bottom={-60}
-        shadow-bias={-0.0005}
+        shadow-camera-far={180}
+        shadow-camera-left={-65}
+        shadow-camera-right={65}
+        shadow-camera-top={65}
+        shadow-camera-bottom={-65}
+        shadow-bias={-0.0004}
       />
 
-      {/* Secondary Rim Fill Light (Distant burning district glow) */}
+      {/* 3. Soft Sky Diffuse Fill (Opposite horizon bounce) */}
       <directionalLight
-        position={[-50, 30, -50]}
-        intensity={1.5}
-        color="#ff7b2b"
+        position={[-40, 35, -45]}
+        intensity={1.1}
+        color="#8faec9"
       />
 
-      {/* Tertiary Soft Front-Light for player readability */}
+      {/* 4. Front Soft Sunlight Bounce */}
       <directionalLight
-        position={[0, 20, 50]}
+        position={[0, 15, 45]}
         intensity={0.8}
-        color="#708aa8"
+        color="#e8d8be"
       />
 
-      {/* Abandoned Police Car Emergency Flasher (Red & Blue alternating) */}
+      {/* 5. Paramedic Ambulance Lightbar Flash */}
       <pointLight
-        ref={strobeRedRef}
-        position={[-5.8, 1.8, -6.5]}
-        color="#ff1a1a"
-        distance={22}
-        decay={2}
-      />
-      <pointLight
-        ref={strobeBlueRef}
-        position={[-4.8, 1.8, -6.5]}
-        color="#1a8cff"
-        distance={22}
-        decay={2}
-      />
-
-      {/* Burning Vehicle / Rubble Fire Glow 1 */}
-      <pointLight
-        ref={fireGlow1Ref}
-        position={[6.5, 1.5, -28]}
-        color="#ff6600"
-        distance={20}
-        decay={2}
-      />
-
-      {/* Burning Rubble Fire Glow 2 (West Avenue) */}
-      <pointLight
-        ref={fireGlow2Ref}
-        position={[-14, 2.0, -11]}
-        color="#ff7711"
+        ref={ambulanceLightRef}
+        position={[-11, 2.8, -15]}
+        color="#ff2200"
         distance={18}
         decay={2}
       />
 
-      {/* Extraction Zone Beacon (Helipad Northern Clearing) */}
+      {/* 6. Fire Engine Red Beacon Flash */}
+      <pointLight
+        ref={fireEngineLightRef}
+        position={[6, 3.2, 5]}
+        color="#ff3311"
+        distance={20}
+        decay={2}
+      />
+
+      {/* 7. Helipad Evac Extraction Beacon (Northern Clearing) */}
       <pointLight
         ref={beaconLightRef}
-        position={[0, 7, -42]}
-        color="#00ffd0"
-        distance={35}
+        position={[0, 6, -42]}
+        color="#00ffcc"
+        distance={30}
         decay={2}
       />
     </group>

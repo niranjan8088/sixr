@@ -49,7 +49,7 @@ export default function App() {
           camera={{ fov: 55, near: 0.1, far: 200, position: [0, 4, 25] }}
           gl={{ antialias: true, alpha: false }}
           onCreated={({ gl }) => {
-            gl.setClearColor('#141d2a');
+            gl.setClearColor('#7ba0c4');
           }}
         >
           <World />

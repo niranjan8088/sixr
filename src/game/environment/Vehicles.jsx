@@ -4,131 +4,204 @@ import { globalCollisions } from '../core/CollisionManager';
 export default function Vehicles() {
   // Register vehicle colliders
   useEffect(() => {
-    globalCollisions.addBox(-6.8, -8.5, -3.6, -4.5, 'veh-police');
-    globalCollisions.addBox(4.0, -30.0, 7.0, -26.0, 'veh-burnt-suv');
-    globalCollisions.addBox(-14.0, -17.0, -10.0, -13.0, 'veh-ambulance');
-    globalCollisions.addBox(3.4, 6.0, 6.2, 10.0, 'veh-sedan');
+    // Paramedic Ambulance (West Boulevard, tilted in overgrown grass)
+    globalCollisions.addBox(-12.8, -17.5, -8.2, -12.5, 'veh-ambulance');
+    // Heavy Fire Engine Rescue Truck (East Intersection)
+    globalCollisions.addBox(5.0, 2.0, 9.5, 9.5, 'veh-fire-engine');
+    // Overgrown Abandoned Civilian Sedan (South Road)
+    globalCollisions.addBox(3.4, 14.0, 6.2, 18.0, 'veh-sedan');
+    // Burnt-out Station Wagon (North Crossroads)
+    globalCollisions.addBox(-5.8, -32.0, -2.4, -28.0, 'veh-wagon');
   }, []);
 
   return (
     <group>
-      {/* 1. Abandoned Police Cruiser (Tilted on boulevard with hazard flashers) */}
-      <group position={[-5.2, 0.45, -6.5]} rotation={[0, 0.35, 0.05]}>
-        {/* Main Chassis */}
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[2.1, 0.9, 4.4]} />
-          <meshStandardMaterial color="#1a202c" roughness={0.4} metalness={0.6} />
+      {/* =================================================================
+          1. PARAMEDIC AMBULANCE (Modeled directly from User Reference Image 4)
+          Boxy emergency ambulance with red livery and green medical cross
+         ================================================================= */}
+      <group position={[-10.5, 0.75, -15]} rotation={[0.04, 0.35, -0.06]}>
+        {/* Front Cab */}
+        <mesh castShadow receiveShadow position={[0, 0, 1.8]}>
+          <boxGeometry args={[2.3, 1.5, 2.0]} />
+          <meshStandardMaterial color="#d6dadf" roughness={0.6} metalness={0.2} />
         </mesh>
-        {/* Cabin / Roof */}
-        <mesh castShadow position={[0, 0.65, -0.3]}>
-          <boxGeometry args={[1.7, 0.65, 2.2]} />
-          <meshStandardMaterial color="#f0f4f8" roughness={0.3} metalness={0.4} />
+        {/* Windshield */}
+        <mesh position={[0, 0.35, 2.82]} rotation={[0.3, 0, 0]}>
+          <planeGeometry args={[1.8, 0.7]} />
+          <meshStandardMaterial color="#1c2530" roughness={0.15} metalness={0.8} />
         </mesh>
-        {/* Tinted Windshield / Windows */}
-        <mesh position={[0, 0.65, 0.85]} rotation={[0.4, 0, 0]}>
-          <planeGeometry args={[1.6, 0.8]} />
-          <meshStandardMaterial color="#0c1219" roughness={0.1} metalness={0.9} />
+        {/* Front Hood Red Strip */}
+        <mesh position={[0, -0.1, 2.8]}>
+          <boxGeometry args={[2.1, 0.25, 0.1]} />
+          <meshStandardMaterial color="#c4281b" roughness={0.5} />
         </mesh>
-        {/* Wheels (Heavy rubber tires) */}
-        {[-1.05, 1.05].map((x) =>
-          [-1.4, 1.4].map((z) => (
-            <mesh key={`pol-w-${x}-${z}`} position={[x, -0.22, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.38, 0.38, 0.32, 14]} />
-              <meshStandardMaterial color="#111317" roughness={0.9} />
+
+        {/* Rear Medical Box Body */}
+        <mesh castShadow receiveShadow position={[0, 0.28, -0.6]}>
+          <boxGeometry args={[2.5, 1.9, 3.8]} />
+          <meshStandardMaterial color="#e2e6ea" roughness={0.5} metalness={0.15} />
+        </mesh>
+
+        {/* Red Emergency Chevron Stripe on Side Panels (Like in Image 4!) */}
+        <mesh position={[1.26, 0.35, -0.6]}>
+          <planeGeometry args={[3.6, 0.55]} rotation={[0, Math.PI / 2, 0]} />
+          <meshStandardMaterial color="#c4281b" roughness={0.4} />
+        </mesh>
+        <mesh position={[-1.26, 0.35, -0.6]}>
+          <planeGeometry args={[3.6, 0.55]} rotation={[0, -Math.PI / 2, 0]} />
+          <meshStandardMaterial color="#c4281b" roughness={0.4} />
+        </mesh>
+
+        {/* Green Medical Cross Emblem on Ambulance Sides (Exactly like in Image 4!) */}
+        <group position={[1.27, 0.35, -0.6]} rotation={[0, Math.PI / 2, 0]}>
+          <mesh position={[0, 0, 0]}>
+            <planeGeometry args={[0.22, 0.65]} />
+            <meshBasicMaterial color="#00a859" />
+          </mesh>
+          <mesh position={[0, 0, 0]}>
+            <planeGeometry args={[0.65, 0.22]} />
+            <meshBasicMaterial color="#00a859" />
+          </mesh>
+        </group>
+        <group position={[-1.27, 0.35, -0.6]} rotation={[0, -Math.PI / 2, 0]}>
+          <mesh position={[0, 0, 0]}>
+            <planeGeometry args={[0.22, 0.65]} />
+            <meshBasicMaterial color="#00a859" />
+          </mesh>
+          <mesh position={[0, 0, 0]}>
+            <planeGeometry args={[0.65, 0.22]} />
+            <meshBasicMaterial color="#00a859" />
+          </mesh>
+        </group>
+
+        {/* Roof Emergency Lightbar */}
+        <mesh position={[0, 1.3, -0.4]}>
+          <boxGeometry args={[1.8, 0.18, 0.35]} />
+          <meshStandardMaterial color="#222" metalness={0.8} />
+        </mesh>
+        <mesh position={[-0.6, 1.32, -0.4]}>
+          <boxGeometry args={[0.5, 0.16, 0.3]} />
+          <meshBasicMaterial color="#ff2200" />
+        </mesh>
+        <mesh position={[0.6, 1.32, -0.4]}>
+          <boxGeometry args={[0.5, 0.16, 0.3]} />
+          <meshBasicMaterial color="#ff2200" />
+        </mesh>
+
+        {/* Heavy Mud-Splattered Wheels */}
+        {[-1.15, 1.15].map((x) =>
+          [-1.5, 1.6].map((z) => (
+            <mesh key={`amb-w-${x}-${z}`} position={[x, -0.45, z]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.42, 0.42, 0.34, 14]} />
+              <meshStandardMaterial color="#252422" roughness={0.9} />
             </mesh>
           ))
         )}
-        {/* Police Lightbar on Roof */}
-        <mesh position={[0, 1.05, -0.3]}>
-          <boxGeometry args={[1.4, 0.16, 0.3]} />
-          <meshStandardMaterial color="#333" metalness={0.8} />
-        </mesh>
-        {/* Red Flasher Dome */}
-        <mesh position={[-0.45, 1.06, -0.3]}>
-          <boxGeometry args={[0.45, 0.18, 0.28]} />
-          <meshBasicMaterial color="#ff2222" />
-        </mesh>
-        {/* Blue Flasher Dome */}
-        <mesh position={[0.45, 1.06, -0.3]}>
-          <boxGeometry args={[0.45, 0.18, 0.28]} />
-          <meshBasicMaterial color="#0088ff" />
-        </mesh>
-        {/* Front Push-Bumper */}
-        <mesh position={[0, -0.1, 2.25]}>
-          <boxGeometry args={[1.8, 0.5, 0.2]} />
-          <meshStandardMaterial color="#000" metalness={0.9} />
+
+        {/* Overgrown Moss / Ivy creeping over the ambulance bumper */}
+        <mesh position={[0.6, -0.4, 2.6]} rotation={[0.2, 0.4, 0]}>
+          <dodecahedronGeometry args={[0.4, 0]} />
+          <meshStandardMaterial color="#3b5428" roughness={0.95} />
         </mesh>
       </group>
 
-      {/* 2. Burnt-out Civilian SUV (Rusted skeleton with fire and charred metal) */}
-      <group position={[5.5, 0.5, -28]} rotation={[0.08, -0.4, -0.06]}>
-        {/* Charred Body Shell */}
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[2.3, 1.1, 4.6]} />
-          <meshStandardMaterial color="#2d221c" roughness={0.95} metalness={0.2} />
+      {/* =================================================================
+          2. HEAVY FIRE ENGINE RESCUE TRUCK (Modeled from User Reference Image 3)
+          Red fire rescue truck with chrome bumper, equipment doors, roof ladders
+         ================================================================= */}
+      <group position={[7.2, 0.95, 5.5]} rotation={[0, -0.25, 0]}>
+        {/* Heavy Red Cab */}
+        <mesh castShadow receiveShadow position={[0, 0.3, 2.6]}>
+          <boxGeometry args={[2.7, 2.1, 2.8]} />
+          <meshStandardMaterial color="#b81d13" roughness={0.4} metalness={0.3} />
         </mesh>
-        {/* Scorched Roof */}
-        <mesh position={[0, 0.75, -0.2]}>
-          <boxGeometry args={[1.9, 0.7, 2.6]} />
-          <meshStandardMaterial color="#1e1814" roughness={0.9} />
+        {/* Cab Windshield */}
+        <mesh position={[0, 0.7, 4.02]} rotation={[0.2, 0, 0]}>
+          <planeGeometry args={[2.2, 0.9]} />
+          <meshStandardMaterial color="#1a2533" roughness={0.15} metalness={0.8} />
         </mesh>
-        {/* Burnt Wheel Hubs (Tires melted off) */}
-        {[-1.1, 1.1].map((x) =>
-          [-1.4, 1.4].map((z) => (
-            <mesh key={`burnt-w-${x}-${z}`} position={[x, -0.25, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.3, 0.3, 0.24, 10]} />
-              <meshStandardMaterial color="#3a251b" roughness={0.8} metalness={0.5} />
+        {/* Chrome Front Heavy Bumper */}
+        <mesh position={[0, -0.4, 4.05]}>
+          <boxGeometry args={[2.8, 0.5, 0.3]} />
+          <meshStandardMaterial color="#d0d8e0" roughness={0.15} metalness={0.95} />
+        </mesh>
+
+        {/* Main Equipment Body (Roller Shutter Compartments) */}
+        <mesh castShadow receiveShadow position={[0, 0.35, -1.2]}>
+          <boxGeometry args={[2.7, 2.2, 5.4]} />
+          <meshStandardMaterial color="#ab180f" roughness={0.45} metalness={0.25} />
+        </mesh>
+
+        {/* Equipment Compartment Roller Shutters (Silver metallic) */}
+        {[-1.36, 1.36].map((x) =>
+          [-2.6, -1.2, 0.2].map((z) => (
+            <mesh key={`shutter-${x}-${z}`} position={[x, 0.25, z]}>
+              <boxGeometry args={[0.08, 1.4, 1.1]} />
+              <meshStandardMaterial color="#8a99a8" roughness={0.4} metalness={0.85} />
             </mesh>
           ))
         )}
-        {/* Fire flames inside engine bay */}
-        <mesh position={[0, 0.7, 1.6]}>
-          <dodecahedronGeometry args={[0.5, 0]} />
-          <meshBasicMaterial color="#ff5500" />
-        </mesh>
-      </group>
 
-      {/* 3. Crashed Ambulance / Paramedic Van (Blocking west avenue intersection) */}
-      <group position={[-12, 0.65, -15]} rotation={[0, 1.1, 0.04]}>
-        <mesh castShadow receiveShadow>
-          <boxGeometry args={[2.4, 1.5, 5.2]} />
-          <meshStandardMaterial color="#d8dede" roughness={0.5} metalness={0.3} />
+        {/* Roof Emergency Lightbar & Chrome Siren Horns */}
+        <mesh position={[0, 1.48, 2.4]}>
+          <boxGeometry args={[2.2, 0.22, 0.4]} />
+          <meshStandardMaterial color="#ff2200" />
         </mesh>
-        {/* High-Vis Orange/Red Side Chevrons */}
-        <mesh position={[1.22, 0.1, 0]}>
-          <planeGeometry args={[4.2, 0.6]} rotation={[0, Math.PI / 2, 0]} />
-          <meshStandardMaterial color="#e84010" />
+        <mesh position={[-0.6, 1.55, 3.2]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.08, 0.16, 0.5, 10]} />
+          <meshStandardMaterial color="#e0e8f0" metalness={0.95} />
         </mesh>
-        {/* Heavy Wheels */}
-        {[-1.2, 1.2].map((x) =>
-          [-1.6, 1.6].map((z) => (
-            <mesh key={`amb-w-${x}-${z}`} position={[x, -0.42, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.42, 0.42, 0.35, 14]} />
-              <meshStandardMaterial color="#16181c" roughness={0.8} />
+        <mesh position={[0.6, 1.55, 3.2]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.08, 0.16, 0.5, 10]} />
+          <meshStandardMaterial color="#e0e8f0" metalness={0.95} />
+        </mesh>
+
+        {/* Roof Aluminum Rescue Ladders */}
+        <group position={[0.6, 1.6, -1.0]}>
+          <mesh position={[0, 0, 0]}>
+            <boxGeometry args={[0.5, 0.15, 4.8]} />
+            <meshStandardMaterial color="#c0cdd8" roughness={0.3} metalness={0.9} />
+          </mesh>
+        </group>
+
+        {/* Heavy Fire Truck Wheels (6 Wheels) */}
+        {[-1.38, 1.38].map((x) =>
+          [-2.5, -1.0, 2.6].map((z) => (
+            <mesh key={`fire-w-${x}-${z}`} position={[x, -0.45, z]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.48, 0.48, 0.38, 16]} />
+              <meshStandardMaterial color="#1a1c20" roughness={0.85} />
             </mesh>
           ))
         )}
       </group>
 
-      {/* 4. Civilian Sedan (Near South Spawn road) */}
-      <group position={[4.8, 0.4, 8]} rotation={[0, -0.2, 0]}>
+      {/* =================================================================
+          3. OVERGROWN ABANDONED CIVILIAN SEDAN (With grass & moss)
+         ================================================================= */}
+      <group position={[4.8, 0.45, 16]} rotation={[0.05, -0.3, 0.04]}>
         <mesh castShadow receiveShadow>
-          <boxGeometry args={[2.0, 0.8, 4.2]} />
-          <meshStandardMaterial color="#35495e" roughness={0.35} metalness={0.7} />
+          <boxGeometry args={[2.0, 0.85, 4.2]} />
+          <meshStandardMaterial color="#425048" roughness={0.85} metalness={0.1} />
         </mesh>
         <mesh position={[0, 0.55, -0.3]}>
-          <boxGeometry args={[1.6, 0.55, 2.0]} />
-          <meshStandardMaterial color="#1a232d" roughness={0.2} metalness={0.8} />
+          <boxGeometry args={[1.65, 0.6, 2.2]} />
+          <meshStandardMaterial color="#2c3631" roughness={0.8} />
         </mesh>
         {/* Wheels */}
-        {[-1.0, 1.0].map((x) =>
+        {[-1.02, 1.02].map((x) =>
           [-1.3, 1.3].map((z) => (
-            <mesh key={`sed-w-${x}-${z}`} position={[x, -0.18, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.34, 0.34, 0.28, 12]} />
-              <meshStandardMaterial color="#15171b" roughness={0.9} />
+            <mesh key={`sed-w-${x}-${z}`} position={[x, -0.22, z]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.34, 0.34, 0.26, 12]} />
+              <meshStandardMaterial color="#181a18" roughness={0.9} />
             </mesh>
           ))
         )}
+        {/* Green Vines crawling over hood */}
+        <mesh position={[0.2, 0.45, 1.4]} rotation={[0.1, 0.3, 0]}>
+          <dodecahedronGeometry args={[0.45, 0]} />
+          <meshStandardMaterial color="#3d572b" roughness={0.95} />
+        </mesh>
       </group>
     </group>
   );

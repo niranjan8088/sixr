@@ -3,49 +3,20 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export default function Atmosphere() {
-  const emberCount = 400;
-  const smokeCount = 40;
-  const embersRef = useRef();
-  const smokeRef = useRef();
+  const moteCount = 300;
+  const motesRef = useRef();
 
-  // Floating orange embers
-  const embers = useMemo(() => {
+  // Floating dust motes and pollen catching the afternoon sunlight
+  const motes = useMemo(() => {
     const arr = [];
-    for (let i = 0; i < emberCount; i++) {
+    for (let i = 0; i < moteCount; i++) {
       arr.push({
-        x: (Math.random() - 0.5) * 90,
-        y: Math.random() * 16 + 0.3,
-        z: (Math.random() - 0.5) * 120 - 20,
-        speedY: 0.3 + Math.random() * 0.7,
-        swaySpeed: 1 + Math.random() * 2,
-        size: 0.04 + Math.random() * 0.08,
-        colorIndex: Math.random() > 0.3 ? 0 : 1 // bright orange or yellow
-      });
-    }
-    return arr;
-  }, []);
-
-  // Rising smoke puffs from burning wreckages
-  const smokePuffs = useMemo(() => {
-    const arr = [];
-    // Two main smoke source locations (vehicle fires)
-    const sources = [
-      { x: 6.5, z: -28 },
-      { x: -14, z: -11 },
-      { x: -5, z: -6.5 }
-    ];
-
-    for (let i = 0; i < smokeCount; i++) {
-      const src = sources[i % sources.length];
-      arr.push({
-        originX: src.x,
-        originZ: src.z,
-        x: src.x + (Math.random() - 0.5) * 1.5,
-        y: Math.random() * 12 + 0.5,
-        z: src.z + (Math.random() - 0.5) * 1.5,
-        speedY: 0.8 + Math.random() * 0.9,
-        scale: 0.6 + Math.random() * 1.8,
-        rotSpeed: (Math.random() - 0.5) * 0.8
+        x: (Math.random() - 0.5) * 80,
+        y: Math.random() * 12 + 0.3,
+        z: (Math.random() - 0.5) * 110 - 20,
+        speedY: 0.15 + Math.random() * 0.3,
+        swaySpeed: 0.8 + Math.random() * 1.5,
+        size: 0.03 + Math.random() * 0.05
       });
     }
     return arr;
@@ -57,76 +28,46 @@ export default function Atmosphere() {
     const dt = Math.min(delta, 0.1);
     const time = state.clock.getElapsedTime();
 
-    // Update Embers
-    if (embersRef.current) {
-      embers.forEach((e, i) => {
-        e.y += e.speedY * dt;
-        e.x += Math.sin(time * e.swaySpeed + i) * dt * 0.4;
+    if (motesRef.current) {
+      motes.forEach((m, i) => {
+        m.y += m.speedY * dt;
+        m.x += Math.sin(time * m.swaySpeed + i) * dt * 0.25;
 
-        if (e.y > 16) {
-          e.y = 0.3;
-          e.x = (Math.random() - 0.5) * 90;
+        if (m.y > 12) {
+          m.y = 0.3;
+          m.x = (Math.random() - 0.5) * 80;
         }
 
-        dummy.position.set(e.x, e.y, e.z);
-        dummy.scale.set(e.size, e.size, e.size);
+        dummy.position.set(m.x, m.y, m.z);
+        dummy.scale.set(m.size, m.size, m.size);
         dummy.updateMatrix();
-        embersRef.current.setMatrixAt(i, dummy.matrix);
+        motesRef.current.setMatrixAt(i, dummy.matrix);
       });
-      embersRef.current.instanceMatrix.needsUpdate = true;
-    }
-
-    // Update Smoke Puffs
-    if (smokeRef.current) {
-      smokePuffs.forEach((s, i) => {
-        s.y += s.speedY * dt;
-        s.x += Math.sin(time + i) * dt * 0.3;
-        const growth = 1 + (s.y / 12) * 1.5;
-
-        if (s.y > 14) {
-          s.y = 0.5;
-          s.x = s.originX + (Math.random() - 0.5) * 1.2;
-          s.z = s.originZ + (Math.random() - 0.5) * 1.2;
-        }
-
-        dummy.position.set(s.x, s.y, s.z);
-        const curScale = s.scale * growth;
-        dummy.scale.set(curScale, curScale * 0.8, curScale);
-        dummy.rotation.set(0, time * s.rotSpeed + i, 0);
-        dummy.updateMatrix();
-        smokeRef.current.setMatrixAt(i, dummy.matrix);
-      });
-      smokeRef.current.instanceMatrix.needsUpdate = true;
+      motesRef.current.instanceMatrix.needsUpdate = true;
     }
   });
 
   return (
     <group>
-      {/* Cinematic Slate-Blue Dusk Atmospheric Fog (Readable at distance) */}
-      <fogExp2 attach="fog" args={['#182334', 0.013]} />
+      {/* Natural Daytime Aerial Perspective Fog (Soft atmospheric horizon haze) */}
+      <fogExp2 attach="fog" args={['#96b2ce', 0.009]} />
 
-      {/* Distant Atmospheric Sky Dome */}
-      <mesh position={[0, 40, -30]}>
-        <sphereGeometry args={[130, 24, 16]} />
-        <meshBasicMaterial color="#141d2a" side={THREE.BackSide} />
+      {/* Daytime Celestial Sky Dome */}
+      <mesh position={[0, 30, -30]}>
+        <sphereGeometry args={[140, 24, 16]} />
+        <meshBasicMaterial color="#7ba0c4" side={THREE.BackSide} />
       </mesh>
 
-      {/* Floating Fiery Ash Embers */}
-      <instancedMesh ref={embersRef} args={[null, null, emberCount]}>
-        <dodecahedronGeometry args={[1, 0]} />
-        <meshBasicMaterial color="#ff9533" />
-      </instancedMesh>
+      {/* Subtle Sun Flare Glow on Horizon */}
+      <mesh position={[60, 45, -20]} rotation={[0, -0.6, 0]}>
+        <planeGeometry args={[50, 50]} />
+        <meshBasicMaterial color="#fffaed" transparent opacity={0.15} />
+      </mesh>
 
-      {/* Volumetric Dark Smoke Columns from Fires */}
-      <instancedMesh ref={smokeRef} args={[null, null, smokeCount]}>
-        <dodecahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial
-          color="#222832"
-          roughness={0.95}
-          metalness={0.0}
-          transparent
-          opacity={0.35}
-        />
+      {/* Floating Sunlight Dust Motes */}
+      <instancedMesh ref={motesRef} args={[null, null, moteCount]}>
+        <dodecahedronGeometry args={[1, 0]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.7} />
       </instancedMesh>
     </group>
   );

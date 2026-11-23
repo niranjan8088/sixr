@@ -19,44 +19,61 @@ export default function DebrisPiles() {
 
   return (
     <group>
-      {/* Scattered Concrete Slabs and Rubble */}
+      {/* 1. Overgrown Rubble Mounds with Moss & Concrete Slabs */}
       {DEBRIS_CYLINDERS.map((d, idx) => (
         <group key={idx} position={[d.x, 0, d.z]}>
-          {/* Main Rubble Mound */}
+          {/* Main Weathered Concrete Slab */}
           <mesh castShadow receiveShadow position={[0, 0.45, 0]} rotation={[0.2, idx * 1.1, -0.15]}>
             <dodecahedronGeometry args={[d.radius * 0.9, 0]} />
-            <meshStandardMaterial color="#353b45" roughness={0.9} />
+            <meshStandardMaterial color="#4a4d46" roughness={0.9} />
           </mesh>
 
-          {/* Fallen Steel Girder */}
-          <mesh position={[0.2, 0.6, 0.1]} rotation={[0.4, idx * 0.8, 0.9]}>
-            <boxGeometry args={[0.3, 3.2, 0.3]} />
-            <meshStandardMaterial color="#6a3520" roughness={0.7} metalness={0.6} />
+          {/* Green Moss Patch on Slab Top */}
+          <mesh position={[0.1, 0.75, 0]} rotation={[0.1, idx * 1.1, -0.1]}>
+            <dodecahedronGeometry args={[d.radius * 0.55, 0]} />
+            <meshStandardMaterial color="#354d24" roughness={0.95} />
           </mesh>
 
-          {/* Broken Rebar Spikes */}
-          <mesh position={[-0.4, 0.8, -0.3]} rotation={[-0.3, 0, 0.4]}>
-            <cylinderGeometry args={[0.04, 0.04, 1.8, 6]} />
-            <meshStandardMaterial color="#8a5030" metalness={0.8} />
+          {/* Fallen Weathered Wooden Tree Trunk / Log (Like in Image 1 & 4) */}
+          <mesh position={[0.2, 0.35, 0.1]} rotation={[0.1, idx * 0.8, 1.4]}>
+            <cylinderGeometry args={[0.22, 0.28, 3.4, 8]} />
+            <meshStandardMaterial color="#382e22" roughness={0.88} />
           </mesh>
         </group>
       ))}
 
-      {/* Emergency Road Barricade at South Spawn Perimeter */}
-      <group position={[0, 0.6, 26]}>
-        <mesh position={[0, 0, 0]}>
-          <boxGeometry args={[14, 1.2, 0.4]} />
-          <meshStandardMaterial color="#2d333b" roughness={0.7} />
-        </mesh>
-        {/* Warning Stripes */}
-        {[-5, -2.5, 0, 2.5, 5].map((x, i) => (
-          <mesh key={i} position={[x, 0, 0.21]}>
-            <planeGeometry args={[1.2, 0.9]} />
-            <meshStandardMaterial color="#ff7700" />
+      {/* 2. Overgrown Pine / Greenery Trees flanking the avenues (Like Image 1, 2, and 4) */}
+      {[
+        { pos: [-13, 0, 10], s: 1.2 },
+        { pos: [13, 0, 10], s: 1.1 },
+        { pos: [-13, 0, -22], s: 1.3 },
+        { pos: [13, 0, -20], s: 1.2 },
+        { pos: [-14, 0, -40], s: 1.4 },
+        { pos: [14, 0, -38], s: 1.3 }
+      ].map((tree, i) => (
+        <group key={`tree-${i}`} position={tree.pos} scale={[tree.s, tree.s, tree.s]}>
+          {/* Tree Trunk */}
+          <mesh position={[0, 1.8, 0]} castShadow>
+            <cylinderGeometry args={[0.25, 0.35, 3.6, 8]} />
+            <meshStandardMaterial color="#3a2f24" roughness={0.9} />
           </mesh>
-        ))}
-      </group>
+          {/* Tier 1 Pine Foliage */}
+          <mesh position={[0, 3.8, 0]} castShadow>
+            <coneGeometry args={[1.8, 2.5, 7]} />
+            <meshStandardMaterial color="#2d4520" roughness={0.95} />
+          </mesh>
+          {/* Tier 2 Pine Foliage */}
+          <mesh position={[0, 5.2, 0]} castShadow>
+            <coneGeometry args={[1.4, 2.2, 7]} />
+            <meshStandardMaterial color="#385428" roughness={0.95} />
+          </mesh>
+          {/* Tier 3 Pine Foliage */}
+          <mesh position={[0, 6.4, 0]} castShadow>
+            <coneGeometry args={[0.9, 1.8, 6]} />
+            <meshStandardMaterial color="#426330" roughness={0.95} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
-
