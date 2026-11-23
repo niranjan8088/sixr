@@ -51,7 +51,6 @@ export default function Player() {
       return;
     }
 
-    // Clamp delta to avoid huge physics skips on frame drops
     const dt = Math.min(delta, 0.1);
 
     const keys = globalInput.keys;
@@ -83,17 +82,16 @@ export default function Player() {
     if (isMoving) {
       // Calculate movement vector relative to camera yaw
       const moveVec = new THREE.Vector2(moveX, moveZ).normalize();
-      
-      // Rotate move vector by camera yaw
+
       const cosYaw = Math.cos(cameraYaw);
       const sinYaw = Math.sin(cameraYaw);
-      
+
       const worldMoveX = moveVec.x * cosYaw + moveVec.y * sinYaw;
       const worldMoveZ = -moveVec.x * sinYaw + moveVec.y * cosYaw;
 
       // Target character rotation angle
       const targetAngle = Math.atan2(worldMoveX, worldMoveZ);
-      
+
       // Smoothly interpolate angle
       const diff = Math.atan2(Math.sin(targetAngle - rotation.current), Math.cos(targetAngle - rotation.current));
       rotation.current += diff * Math.min(1, GameConfig.player.rotationSpeed * dt);
@@ -148,7 +146,6 @@ export default function Player() {
       }
     }
 
-    // Periodic store sync (throttled inside store or per frame)
     updatePlayerPosition(
       [position.current.x, position.current.y, position.current.z],
       rotation.current,
@@ -162,129 +159,202 @@ export default function Player() {
     <group ref={groupRef}>
       {/* Dynamic Player Shadow Ring */}
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0, 0.55, 24]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.5} />
+        <ringGeometry args={[0, 0.65, 24]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.55} />
       </mesh>
 
       {/* Main Body Hierarchy */}
       <group ref={bodyRef} position={[0, 1.05, 0]}>
-        {/* Torso: Tactical High-Vis Rescue Jacket */}
+        {/* 1. Torso: Heavy Weatherproof Tactical Rescue Jacket */}
         <mesh castShadow receiveShadow position={[0, 0, 0]}>
-          <boxGeometry args={[0.55, 0.65, 0.32]} />
-          <meshStandardMaterial color="#d45b12" roughness={0.5} metalness={0.2} />
+          <boxGeometry args={[0.56, 0.68, 0.34]} />
+          <meshStandardMaterial color="#e05814" roughness={0.45} metalness={0.15} />
         </mesh>
 
-        {/* Reflective Neon Strips on Torso */}
-        <mesh position={[0, 0.05, 0.165]}>
-          <planeGeometry args={[0.5, 0.08]} />
-          <meshBasicMaterial color="#f0ff00" />
-        </mesh>
-        <mesh position={[0, -0.15, 0.165]}>
-          <planeGeometry args={[0.5, 0.08]} />
-          <meshBasicMaterial color="#f0ff00" />
+        {/* Ballistic Kevlar Chest Rig / Utility Vest */}
+        <mesh position={[0, 0.03, 0.1]}>
+          <boxGeometry args={[0.5, 0.52, 0.2]} />
+          <meshStandardMaterial color="#1a2028" roughness={0.7} metalness={0.3} />
         </mesh>
 
-        {/* Tactical Oxygen / Tool Rig on Back */}
-        <mesh position={[0, 0.05, -0.22]}>
-          <boxGeometry args={[0.38, 0.45, 0.18]} />
-          <meshStandardMaterial color="#1e242d" roughness={0.4} metalness={0.8} />
+        {/* High-Vis Reflective Safety Bands (Front) */}
+        <mesh position={[0, 0.16, 0.205]}>
+          <planeGeometry args={[0.48, 0.07]} />
+          <meshBasicMaterial color="#e6ff00" />
         </mesh>
-        {/* Glowing Energy / Oxygen Level indicator */}
-        <mesh position={[0, 0.05, -0.315]}>
-          <planeGeometry args={[0.12, 0.25]} />
-          <meshBasicMaterial color="#00d2ff" />
+        <mesh position={[0, -0.12, 0.205]}>
+          <planeGeometry args={[0.48, 0.07]} />
+          <meshBasicMaterial color="#e6ff00" />
         </mesh>
 
-        {/* Shoulder Emergency Beacon LED */}
-        <mesh position={[-0.24, 0.32, -0.05]}>
-          <boxGeometry args={[0.08, 0.08, 0.08]} />
-          <meshBasicMaterial color="#ff3300" />
+        {/* High-Vis Reflective Safety Bands (Back) */}
+        <mesh position={[0, 0.16, -0.175]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[0.48, 0.07]} />
+          <meshBasicMaterial color="#e6ff00" />
         </mesh>
-        <pointLight position={[-0.24, 0.35, -0.05]} color="#ff3300" intensity={1.5} distance={3} />
 
-        {/* Head & Helmet */}
-        <group ref={headRef} position={[0, 0.45, 0]}>
-          {/* Rescue Helmet */}
+        {/* 2. Tactical Rescue Rig / Backpack */}
+        <group position={[0, 0.05, -0.24]}>
+          {/* Main Rig Frame */}
           <mesh castShadow position={[0, 0, 0]}>
-            <sphereGeometry args={[0.22, 20, 20]} />
-            <meshStandardMaterial color="#2a303c" roughness={0.3} metalness={0.6} />
+            <boxGeometry args={[0.42, 0.48, 0.18]} />
+            <meshStandardMaterial color="#181e26" roughness={0.4} metalness={0.7} />
           </mesh>
-          {/* Reflective Visor */}
-          <mesh position={[0, 0.02, 0.15]}>
-            <boxGeometry args={[0.26, 0.14, 0.14]} />
-            <meshStandardMaterial color="#ffaa00" roughness={0.1} metalness={0.9} />
+
+          {/* Twin High-Pressure Oxygen / Power Cylinders */}
+          <mesh position={[-0.13, 0, 0.02]}>
+            <cylinderGeometry args={[0.075, 0.075, 0.44, 12]} />
+            <meshStandardMaterial color="#00bcd4" roughness={0.2} metalness={0.8} />
           </mesh>
-          {/* Helmet Searchlight */}
-          <mesh position={[0, 0.16, 0.18]}>
-            <cylinderGeometry args={[0.04, 0.05, 0.08, 12]} rotation={[Math.PI / 2, 0, 0]} />
+          <mesh position={[0.13, 0, 0.02]}>
+            <cylinderGeometry args={[0.075, 0.075, 0.44, 12]} />
+            <meshStandardMaterial color="#00bcd4" roughness={0.2} metalness={0.8} />
+          </mesh>
+
+          {/* Glowing Telemetry Battery Bar */}
+          <mesh position={[0, 0.06, -0.095]}>
+            <planeGeometry args={[0.14, 0.22]} rotation={[0, Math.PI, 0]} />
+            <meshBasicMaterial color="#00ffcc" />
+          </mesh>
+        </group>
+
+        {/* 3. Shoulder Mounts & Lights */}
+        {/* Left Shoulder: Radio Comms & Strobe LED */}
+        <group position={[-0.26, 0.34, -0.02]}>
+          <mesh>
+            <boxGeometry args={[0.09, 0.12, 0.1]} />
+            <meshStandardMaterial color="#12161c" />
+          </mesh>
+          {/* Flexible Antenna */}
+          <mesh position={[0, 0.18, 0]}>
+            <cylinderGeometry args={[0.015, 0.02, 0.28, 6]} />
+            <meshStandardMaterial color="#222" />
+          </mesh>
+          {/* Strobe LED */}
+          <mesh position={[0, 0.04, 0.05]}>
+            <boxGeometry args={[0.06, 0.06, 0.03]} />
+            <meshBasicMaterial color="#ff3300" />
+          </mesh>
+          <pointLight color="#ff3300" intensity={1.5} distance={3.5} />
+        </group>
+
+        {/* Right Shoulder: Tactical LED Worklight */}
+        <group position={[0.26, 0.34, 0.02]}>
+          <mesh>
+            <boxGeometry args={[0.08, 0.08, 0.12]} />
+            <meshStandardMaterial color="#12161c" />
+          </mesh>
+          <mesh position={[0, 0, 0.07]}>
+            <circleGeometry args={[0.04, 10]} />
             <meshBasicMaterial color="#ffffff" />
           </mesh>
-          {/* Forward Flashlight Beam */}
+        </group>
+
+        {/* 4. Head & Search-And-Rescue Helmet */}
+        <group ref={headRef} position={[0, 0.48, 0]}>
+          {/* Ballistic SAR Helmet */}
+          <mesh castShadow position={[0, 0.02, 0]}>
+            <sphereGeometry args={[0.23, 20, 20]} />
+            <meshStandardMaterial color="#222933" roughness={0.3} metalness={0.7} />
+          </mesh>
+
+          {/* Chin Guard / Rebreather Mask */}
+          <mesh position={[0, -0.1, 0.14]}>
+            <boxGeometry args={[0.22, 0.15, 0.16]} />
+            <meshStandardMaterial color="#14181f" roughness={0.6} metalness={0.4} />
+          </mesh>
+
+          {/* Reflective Gold/Amber Visor */}
+          <mesh position={[0, 0.04, 0.16]}>
+            <boxGeometry args={[0.28, 0.14, 0.12]} />
+            <meshStandardMaterial color="#f59e0b" roughness={0.08} metalness={0.95} />
+          </mesh>
+
+          {/* Helmet Searchlight Beam */}
+          <mesh position={[0, 0.18, 0.18]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.045, 0.06, 0.09, 12]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
           <spotLight
-            position={[0, 0.16, 0.25]}
-            target-position={[0, -0.5, 8]}
-            angle={0.45}
-            penumbra={0.6}
-            intensity={4}
-            distance={18}
-            color="#fff4e0"
+            position={[0, 0.18, 0.28]}
+            target-position={[0, -0.5, 9]}
+            angle={0.42}
+            penumbra={0.5}
+            intensity={4.5}
+            distance={20}
+            color="#fff8eb"
             castShadow
           />
         </group>
 
-        {/* Left Arm */}
-        <group ref={leftArmRef} position={[-0.34, 0.22, 0]}>
+        {/* 5. Left Arm & Tactical Gauntlet */}
+        <group ref={leftArmRef} position={[-0.35, 0.24, 0]}>
           <mesh position={[0, -0.22, 0]}>
-            <boxGeometry args={[0.14, 0.45, 0.14]} />
-            <meshStandardMaterial color="#2a303c" roughness={0.6} />
+            <boxGeometry args={[0.15, 0.46, 0.15]} />
+            <meshStandardMaterial color="#222933" roughness={0.6} />
           </mesh>
-          {/* Tactical Gauntlet */}
+          {/* Rescue Gauntlet & Wrist Data-Pad */}
           <mesh position={[0, -0.38, 0]}>
-            <boxGeometry args={[0.16, 0.18, 0.16]} />
-            <meshStandardMaterial color="#d45b12" roughness={0.5} />
+            <boxGeometry args={[0.17, 0.18, 0.17]} />
+            <meshStandardMaterial color="#e05814" roughness={0.5} />
+          </mesh>
+          {/* Glowing Wrist Interface */}
+          <mesh position={[0, -0.38, 0.09]}>
+            <planeGeometry args={[0.1, 0.08]} />
+            <meshBasicMaterial color="#00e5ff" />
           </mesh>
         </group>
 
-        {/* Right Arm */}
-        <group ref={rightArmRef} position={[0.34, 0.22, 0]}>
+        {/* 6. Right Arm & Tactical Gauntlet */}
+        <group ref={rightArmRef} position={[0.35, 0.24, 0]}>
           <mesh position={[0, -0.22, 0]}>
-            <boxGeometry args={[0.14, 0.45, 0.14]} />
-            <meshStandardMaterial color="#2a303c" roughness={0.6} />
+            <boxGeometry args={[0.15, 0.46, 0.15]} />
+            <meshStandardMaterial color="#222933" roughness={0.6} />
           </mesh>
-          {/* Tactical Gauntlet */}
+          {/* Rescue Gauntlet */}
           <mesh position={[0, -0.38, 0]}>
-            <boxGeometry args={[0.16, 0.18, 0.16]} />
-            <meshStandardMaterial color="#d45b12" roughness={0.5} />
+            <boxGeometry args={[0.17, 0.18, 0.17]} />
+            <meshStandardMaterial color="#e05814" roughness={0.5} />
           </mesh>
         </group>
       </group>
 
+      {/* 7. Heavy Tactical Trousers & Combat Boots */}
       {/* Left Leg */}
       <group ref={leftLegRef} position={[-0.15, 0.65, 0]}>
-        <mesh position={[0, -0.35, 0]}>
-          <boxGeometry args={[0.16, 0.65, 0.18]} />
-          <meshStandardMaterial color="#1a202c" roughness={0.7} />
+        <mesh position={[0, -0.34, 0]}>
+          <boxGeometry args={[0.17, 0.66, 0.19]} />
+          <meshStandardMaterial color="#1a2028" roughness={0.7} />
         </mesh>
-        {/* Heavy Rescue Boot */}
-        <mesh position={[0, -0.62, 0.05]}>
-          <boxGeometry args={[0.18, 0.14, 0.28]} />
-          <meshStandardMaterial color="#11151c" roughness={0.8} />
+        {/* Reinforced Knee Pad */}
+        <mesh position={[0, -0.26, 0.1]}>
+          <boxGeometry args={[0.18, 0.16, 0.06]} />
+          <meshStandardMaterial color="#11151a" roughness={0.8} />
+        </mesh>
+        {/* Heavy Rescue Combat Boot */}
+        <mesh position={[0, -0.62, 0.06]}>
+          <boxGeometry args={[0.19, 0.16, 0.32]} />
+          <meshStandardMaterial color="#0d1014" roughness={0.9} />
         </mesh>
       </group>
 
       {/* Right Leg */}
       <group ref={rightLegRef} position={[0.15, 0.65, 0]}>
-        <mesh position={[0, -0.35, 0]}>
-          <boxGeometry args={[0.16, 0.65, 0.18]} />
-          <meshStandardMaterial color="#1a202c" roughness={0.7} />
+        <mesh position={[0, -0.34, 0]}>
+          <boxGeometry args={[0.17, 0.66, 0.19]} />
+          <meshStandardMaterial color="#1a2028" roughness={0.7} />
         </mesh>
-        {/* Heavy Rescue Boot */}
-        <mesh position={[0, -0.62, 0.05]}>
-          <boxGeometry args={[0.18, 0.14, 0.28]} />
-          <meshStandardMaterial color="#11151c" roughness={0.8} />
+        {/* Reinforced Knee Pad */}
+        <mesh position={[0, -0.26, 0.1]}>
+          <boxGeometry args={[0.18, 0.16, 0.06]} />
+          <meshStandardMaterial color="#11151a" roughness={0.8} />
+        </mesh>
+        {/* Heavy Rescue Combat Boot */}
+        <mesh position={[0, -0.62, 0.06]}>
+          <boxGeometry args={[0.19, 0.16, 0.32]} />
+          <meshStandardMaterial color="#0d1014" roughness={0.9} />
         </mesh>
       </group>
     </group>
   );
 }
-

@@ -2,11 +2,13 @@ import React from 'react';
 import CityGround from './environment/CityGround';
 import Buildings from './environment/Buildings';
 import DebrisPiles from './environment/DebrisPiles';
+import Vehicles from './environment/Vehicles';
+import StreetProps from './environment/StreetProps';
 import Atmosphere from './environment/Atmosphere';
 
 /**
  * Environment composition component.
- * Fallback world or integrated environment authored for AFTERLIGHT.
+ * AAA Open-World Disaster City Sector 4-B.
  */
 export default function Environment() {
   return (
@@ -14,8 +16,9 @@ export default function Environment() {
       <CityGround />
       <Buildings />
       <DebrisPiles />
+      <Vehicles />
+      <StreetProps />
       <Atmosphere />
     </group>
   );
 }
-

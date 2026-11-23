@@ -7,12 +7,12 @@ import { useGameStore } from '../store/gameStore';
 
 export default function CameraController() {
   const { camera, gl } = useThree();
-  
+
   // Camera state refs
   const yaw = useRef(0);
-  const pitch = useRef(0.2);
-  const currentPos = useRef(new THREE.Vector3(0, 5, 25));
-  const currentLookAt = useRef(new THREE.Vector3(0, 1.5, 18));
+  const pitch = useRef(0.18);
+  const currentPos = useRef(new THREE.Vector3(0, 3.5, 23));
+  const currentLookAt = useRef(new THREE.Vector3(0.3, 1.4, 18));
   const isPointerLocked = useRef(false);
 
   const playerPosition = useGameStore((state) => state.player.position);
@@ -24,8 +24,8 @@ export default function CameraController() {
   useEffect(() => {
     if (phase === 'MENU' || phase === 'BRIEFING') {
       yaw.current = 0;
-      pitch.current = 0.2;
-      setCameraRotation(0, 0.2);
+      pitch.current = 0.18;
+      setCameraRotation(0, 0.18);
     }
   }, [phase, setCameraRotation]);
 
@@ -54,8 +54,8 @@ export default function CameraController() {
     document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     // Initial camera placement
-    camera.position.set(playerPosition[0], playerPosition[1] + 3, playerPosition[2] + 6);
-    camera.lookAt(playerPosition[0], playerPosition[1] + 1.5, playerPosition[2]);
+    camera.position.set(playerPosition[0] + 0.4, playerPosition[1] + 2.4, playerPosition[2] + 4.2);
+    camera.lookAt(playerPosition[0] + 0.3, playerPosition[1] + 1.4, playerPosition[2]);
 
     return () => {
       domElement.removeEventListener('click', handleCanvasClick);
@@ -79,50 +79,53 @@ export default function CameraController() {
       yaw.current -= dx * GameConfig.camera.mouseSensitivity;
       pitch.current += dy * GameConfig.camera.mouseSensitivity;
 
-      // Clamp pitch to avoid ground flipping or going straight down
+      // Clamp pitch to avoid ground clipping or zenith flip
       pitch.current = THREE.MathUtils.clamp(
         pitch.current,
         GameConfig.camera.minPitch,
         GameConfig.camera.maxPitch
       );
 
-      // Keep yaw normalized between -PI and PI
+      // Normalize yaw
       if (yaw.current > Math.PI) yaw.current -= Math.PI * 2;
       if (yaw.current < -Math.PI) yaw.current += Math.PI * 2;
 
-      // Sync yaw with store for UI radar/compass
       setCameraRotation(yaw.current, pitch.current);
     }
 
-    // Target positions
+    // GTA-style Over-The-Shoulder Camera Framing
     const targetPlayerPos = new THREE.Vector3(
       playerPosition[0],
       playerPosition[1],
       playerPosition[2]
     );
 
-    const camDistance = GameConfig.camera.distance;
-    const camHeight = GameConfig.camera.height;
+    const camDistance = 3.8; // Snug, action-oriented distance
+    const camHeight = 1.85;  // Slightly above eye level
+    const shoulderOffset = 0.45; // Right-shoulder GTA offset
 
-    // Calculate spherical camera offset
     const cosPitch = Math.cos(pitch.current);
     const sinPitch = Math.sin(pitch.current);
     const sinYaw = Math.sin(yaw.current);
     const cosYaw = Math.cos(yaw.current);
 
-    // Offset position from player
-    const targetCamX = targetPlayerPos.x + sinYaw * cosPitch * camDistance;
-    const targetCamY = Math.max(0.6, targetPlayerPos.y + camHeight + sinPitch * camDistance);
-    const targetCamZ = targetPlayerPos.z + cosYaw * cosPitch * camDistance;
+    // Right-hand perpendicular vector for shoulder offset
+    const rightX = cosYaw;
+    const rightZ = -sinYaw;
 
-    // Target Look-At center (chest/head level of player)
-    const targetLookX = targetPlayerPos.x;
-    const targetLookY = targetPlayerPos.y + GameConfig.camera.lookAtHeightOffset;
-    const targetLookZ = targetPlayerPos.z;
+    // Camera 3D coordinates
+    const targetCamX = targetPlayerPos.x + sinYaw * cosPitch * camDistance + rightX * shoulderOffset;
+    const targetCamY = Math.max(0.65, targetPlayerPos.y + camHeight + sinPitch * camDistance);
+    const targetCamZ = targetPlayerPos.z + cosYaw * cosPitch * camDistance + rightZ * shoulderOffset;
 
-    // Smooth camera motion
-    currentPos.current.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 12 * dt);
-    currentLookAt.current.lerp(new THREE.Vector3(targetLookX, targetLookY, targetLookZ), 15 * dt);
+    // Look-At Target (Slightly to the right of upper spine for over-the-shoulder framing)
+    const targetLookX = targetPlayerPos.x + rightX * (shoulderOffset * 0.4);
+    const targetLookY = targetPlayerPos.y + 1.35;
+    const targetLookZ = targetPlayerPos.z + rightZ * (shoulderOffset * 0.4);
+
+    // Smooth cinematic damping
+    currentPos.current.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 14 * dt);
+    currentLookAt.current.lerp(new THREE.Vector3(targetLookX, targetLookY, targetLookZ), 18 * dt);
 
     camera.position.copy(currentPos.current);
     camera.lookAt(currentLookAt.current);
@@ -130,4 +133,3 @@ export default function CameraController() {
 
   return null;
 }
-
