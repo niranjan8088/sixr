@@ -76,7 +76,7 @@ export default function RescueModal() {
         </div>
 
         {/* Triage Assessment */}
-        <div style={{ marginBottom: '24px' }}>
+        <div style={{ marginBottom: '20px' }}>
           <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '4px' }}>
             DIAGNOSTIC ASSESSMENT
           </div>
@@ -85,6 +85,69 @@ export default function RescueModal() {
           </div>
           <div style={{ color: 'var(--accent-red)', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
             STATUS: {activeSurvivor.condition}
+          </div>
+        </div>
+
+        {/* AI Field Medic Diagnostic Telemetry (Priority 9 Match!) */}
+        <div style={{
+          background: 'rgba(6, 18, 30, 0.75)',
+          border: '1px solid rgba(56, 189, 248, 0.35)',
+          borderRadius: '4px',
+          padding: '14px',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#38bdf8', fontSize: '11px', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+              <ShieldAlert size={14} /> AI CLINICAL DIAGNOSTIC TELEMETRY // MODEL v4.2
+            </div>
+            <div style={{
+              background: 'rgba(56, 189, 248, 0.15)',
+              color: '#38bdf8',
+              fontSize: '10px',
+              fontFamily: 'var(--font-mono)',
+              padding: '2px 6px',
+              borderRadius: '2px'
+            }}>
+              LIVE SENSOR LINK
+            </div>
+          </div>
+
+          {/* Vitals Telemetry Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px', textAlign: 'center' }}>
+            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '6px', borderRadius: '3px' }}>
+              <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>PULSE</div>
+              <div style={{ fontSize: '14px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#ef4444' }}>
+                {activeSurvivor.id === 'survivor-3' ? '138 BPM' : activeSurvivor.id === 'survivor-2' ? '112 BPM' : '94 BPM'}
+              </div>
+            </div>
+            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '6px', borderRadius: '3px' }}>
+              <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>SpO2</div>
+              <div style={{ fontSize: '14px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: activeSurvivor.id === 'survivor-2' ? '#f59e0b' : '#10b981' }}>
+                {activeSurvivor.id === 'survivor-2' ? '79%' : '94%'}
+              </div>
+            </div>
+            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '6px', borderRadius: '3px' }}>
+              <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>BP mmHg</div>
+              <div style={{ fontSize: '14px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: '#38bdf8' }}>
+                {activeSurvivor.id === 'survivor-3' ? '82/50' : '124/82'}
+              </div>
+            </div>
+            <div style={{ background: 'rgba(0,0,0,0.4)', padding: '6px', borderRadius: '3px' }}>
+              <div style={{ fontSize: '9px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>SURVIVAL</div>
+              <div style={{ fontSize: '14px', fontFamily: 'var(--font-mono)', fontWeight: 700, color: isAlreadyRescued ? '#10b981' : '#f59e0b' }}>
+                {isAlreadyRescued ? '98%' : '42%'}
+              </div>
+            </div>
+          </div>
+
+          {/* AI Clinical Synopsis */}
+          <div style={{ fontSize: '12px', color: '#94a3b8', lineHeight: '1.5', fontFamily: 'sans-serif' }}>
+            <strong style={{ color: '#38bdf8' }}>AI Triage Recommendation: </strong>
+            {activeSurvivor.id === 'survivor-1'
+              ? 'Crush syndrome imminent from 450kg reinforced slab. Hydraulic spreader deployment required to release extremity without neurovascular tearing.'
+              : activeSurvivor.id === 'survivor-2'
+              ? 'Severe combustion particulate asphyxiation. Immediate high-flow O2 administration required to reverse hypoxic cellular decay.'
+              : 'Class III hypovolemic shock from arterial laceration. Rapid pressure dressing & trauma tourniquet protocol mandatory.'}
           </div>
         </div>
 

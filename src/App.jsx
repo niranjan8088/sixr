@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
+import * as THREE from 'three';
 import World from './game/World';
 import { GameController } from './game/core/GameController';
 import { globalInput } from './game/core/InputManager';
@@ -46,10 +47,20 @@ export default function App() {
       <div className="canvas-container">
         <Canvas
           shadows
-          camera={{ fov: 55, near: 0.1, far: 200, position: [0, 4, 25] }}
-          gl={{ antialias: true, alpha: false }}
+          dpr={[1, 1.25]}
+          camera={{ fov: 50, near: 0.1, far: 180, position: [0, 3, 20] }}
+          gl={{
+            antialias: true,
+            alpha: false,
+            powerPreference: 'high-performance',
+            preserveDrawingBuffer: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.15
+          }}
           onCreated={({ gl }) => {
-            gl.setClearColor('#0b0e14');
+            gl.setClearColor('#8faec9');
+            gl.shadowMap.enabled = true;
+            gl.shadowMap.type = THREE.PCFShadowMap;
           }}
         >
           <World />

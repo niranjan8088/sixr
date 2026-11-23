@@ -2,7 +2,8 @@
 **Lead Developer & Integrator:** Niranjan  
 **Project:** AFTERLIGHT (3D Urban Disaster Rescue)  
 **Hackathon Target Duration:** 4–5 Hours  
-**Active Core Branch:** `feature/core`
+**Active Integration Branch:** `integration`  
+**Core Source Branch:** `feature/core`
 
 ---
 
@@ -59,100 +60,221 @@ src/
 
 ---
 
-## 2. Shared Game State Contract (`useGameStore`)
+## 2. Team File Ownership & Boundaries
 
-All modules read and update state through `src/store/gameStore.js`.
-
-### State Properties:
-- `phase`: `'MENU' | 'BRIEFING' | 'PLAYING' | 'PAUSED' | 'EXTRACTION' | 'RESULTS'`
-- `player`: `{ position: [x, y, z], rotation, speed, isMoving, isSprinting, health, stamina }`
-- `cameraRotation`: `{ yaw, pitch }` (used by UI Radar/Compass)
-- `mission`: `{ id, title, briefing, timer, elapsed, totalSurvivors, survivorsRescued, currentObjective, isExtractionReady }`
-- `survivors`: Array of 3 survivors:
-  - `id`: `'survivor-1' | 'survivor-2' | 'survivor-3'`
-  - `name`, `role`, `position`: `[x, y, z]`
-  - `injury`, `condition`, `requiredSupply`, `status`: `'TRAPPED' | 'RESCUED'`
-  - `dialogue`, `rescuedDialogue`
-- `supplies`: `{ medkits: number, oxygen: number, toolkits: number }`
-- `interaction`: `{ active: boolean, targetId, targetType: 'SURVIVOR' | 'EXTRACTION', promptText, distance }`
-- `activeRescueSurvivor`: `null | SurvivorObject` (when triage modal is open)
-- `score`: `{ totalPoints, rank, survivorsSaved, timeRemainingBonus, suppliesBonus }`
-
-### Store Methods:
-- `setPhase(newPhase)`
-- `startMission()`
-- `togglePause()` / `resumeGame()`
-- `performRescue(survivorId, supplyUsed)`
-- `triggerExtraction()`
-- `completeMission(success)`
-- `restartMission()`
-- `showNotification(text, type, duration)`
+| Member | Domain | Assigned Branch | Owned Files & Directories | Strict Boundary Rules |
+| --- | --- | --- | --- | --- |
+| **Niranjan** | Core Architecture & Integration | `feature/core` | `src/App.jsx`, `src/main.jsx`, `src/game/World.jsx`, `src/game/Player.jsx`, `src/game/CameraController.jsx`, `src/game/GameLoop.jsx`, `src/game/GameConfig.js`, `src/game/core/**`, `CORE_INTEGRATION.md` | Sole authority to integrate PRs into `integration` and merge to `main`. |
+| **Rajesh** | UI / UX | `feature/ui` | `src/ui/**`, `src/styles/**` | Do not place HTML elements inside R3F `<Canvas>`. Use `.interactive` class for clickable overlays. |
+| **Lukky** | Gameplay & Mission Systems | `feature/gameplay` | `src/systems/**`, `src/game/Survivors.jsx`, `src/game/RescueZone.jsx`, `src/game/Interactions.jsx` | Preserve survivor IDs (`survivor-1`, `survivor-2`, `survivor-3`). Do not create duplicate game loops. |
+| **Siddappa** | Environment & Atmosphere | `feature/environment` | `src/game/Environment.jsx`, `src/game/Lighting.jsx`, `src/game/environment/**` | Register colliders via `globalCollisions.addBox()` and `addCylinder()`. Keep polygon counts optimized for 60fps. |
+| **Venki** | Backend & QA Testing | `feature/backend-qa` | `server/**`, `README.md`, test suites | Game must operate 100% standalone if backend is offline. |
 
 ---
 
-## 3. Team Member Handoff & Extension Guide
+## 3. Shared Game State Contract (`useGameStore`)
 
-### For RAJESH (UI/UX) — Branch: `feature/ui`
-1. **Your Sandbox:** `src/ui/**` and `src/styles/**`.
-2. All HUD panels read cleanly from `useGameStore`.
-3. To open/close triage UI, observe `activeRescueSurvivor` in `gameStore`.
-4. Buttons use `.sci-btn` and panels use `.sci-panel` in `src/styles/game.css`.
-5. **No 3D canvas modification:** Do not add HTML elements inside `<Canvas>`. The UI layer is in `App.jsx` above the canvas.
+All modules read and update state through `src/store/gameStore.js`. Never create a secondary store or duplicate state variables.
 
-### For LUKKY (Gameplay) — Branch: `feature/gameplay`
-1. **Your Sandbox:** `src/systems/**`, `src/game/Survivors.jsx`, `src/game/RescueZone.jsx`, `src/game/Interactions.jsx`.
-2. If you add survivor conditions or triage puzzles, update `rescueSystem.js` and `rescueSystem.attemptRescue(id, supply)`.
-3. The core engine passes `[E]` key presses directly to `GameController.handleInteractionTrigger()`, which dispatches to `openRescueModal()` or `triggerExtraction()`.
-4. You can emit and listen to custom events via `GameEvents.on(EVENT_TYPES..., cb)` from `src/game/core/GameEvents.js`.
-5. **Preserve survivor IDs:** Use `survivor-1`, `survivor-2`, `survivor-3` so radar and scoring remain synced.
+### State Schema:
+```typescript
+interface GameStore {
+  // Phase Management
+  phase: 'MENU' | 'BRIEFING' | 'PLAYING' | 'PAUSED' | 'EXTRACTION' | 'RESULTS';
 
-### For SIDDAPPA (Environment) — Branch: `feature/environment`
-1. **Your Sandbox:** `src/game/Environment.jsx` and `src/game/environment/**`.
-2. To add collidable buildings or ruins, simply call:
-   ```javascript
-   import { globalCollisions } from '../core/CollisionManager';
-   globalCollisions.addBox(minX, minZ, maxX, maxZ, 'my-building-id');
-   globalCollisions.addCylinder(x, z, radius, 'rubble-id');
-   ```
-3. The player will automatically slide along your walls without clipping or falling through the ground.
-4. Keep geometry grouped with standard materials for high 60fps performance on laptops.
+  // Player State
+  player: {
+    position: [number, number, number]; // [x, y, z]
+    rotation: number;                   // Radians
+    speed: number;                      // Current velocity (m/s)
+    isMoving: boolean;
+    isSprinting: boolean;
+    health: number;                     // 0 - 100
+    stamina: number;                    // 0 - 100
+  };
 
-### For VENKI (Backend & QA) — Branch: `feature/backend-qa`
-1. **Your Sandbox:** `server/**`, `README.md`, and test suites.
-2. A lightweight backend template is ready in `server/index.js`.
-3. Health check: `GET /api/health`
-4. Post mission results: `POST /api/results`
-5. Get leaderboard: `GET /api/leaderboard`
-6. **Graceful degradation:** The frontend runs completely standalone even if the backend is unreachable.
+  // Camera Orientation (Synchronized for Radar/Compass)
+  cameraRotation: {
+    yaw: number;                        // Azimuth angle (radians)
+    pitch: number;                      // Elevation angle (radians)
+  };
+
+  // Mission State
+  mission: {
+    id: string;                         // 'mission-01'
+    title: string;                      // 'AFTER THE COLLAPSE'
+    codename: string;                   // 'OP: CITADEL EMBERS'
+    briefing: string;
+    timer: number;                      // Seconds remaining
+    elapsed: number;                    // Elapsed gameplay seconds
+    totalSurvivors: number;             // 3
+    survivorsRescued: number;           // 0 to 3
+    currentObjective: string;
+    isExtractionReady: boolean;         // true when survivorsRescued >= 3
+    extractionReached: boolean;
+  };
+
+  // Survivor Data
+  survivors: Array<{
+    id: 'survivor-1' | 'survivor-2' | 'survivor-3';
+    name: string;
+    role: string;
+    position: [number, number, number];
+    injury: string;
+    condition: string;
+    requiredSupply: 'medkits' | 'oxygen' | 'toolkits';
+    supplyLabel: string;
+    status: 'TRAPPED' | 'RESCUED';
+    dialogue: string;
+    rescuedDialogue: string;
+  }>;
+
+  // Supplies Inventory
+  supplies: {
+    medkits: number;                    // Initial: 3
+    oxygen: number;                     // Initial: 2
+    toolkits: number;                   // Initial: 2
+  };
+
+  // Proximity & Contextual Interaction
+  interaction: {
+    active: boolean;
+    targetId: string | null;            // e.g. 'survivor-1' or 'EXTRACTION_ZONE'
+    targetType: 'SURVIVOR' | 'EXTRACTION' | null;
+    promptText: string;
+    targetName: string;
+    distance: number;
+  };
+
+  // Modal State
+  activeRescueSurvivor: object | null;  // Non-null opens RescueModal and pauses movement
+
+  // Scoring Breakdown
+  score: {
+    totalPoints: number;
+    rank: 'S' | 'A' | 'B' | 'C' | 'D' | 'F' | 'Pending';
+    survivorsSaved: number;
+    timeRemainingBonus: number;
+    suppliesBonus: number;
+    success?: boolean;
+  };
+
+  // Notification Toast
+  notification: { text: string; type: 'info' | 'success' | 'error'; id: number } | null;
+}
+```
+
+### Store Action Methods:
+- `setPhase(newPhase)`: Updates game phase.
+- `startMission()`: Transitions from BRIEFING to PLAYING.
+- `togglePause()` / `resumeGame()`: Toggles pause state.
+- `performRescue(survivorId, supplyUsed)`: Validates supply, consumes item, marks survivor RESCUED, updates objectives, checks evac readiness.
+- `triggerExtraction()`: Verifies `isExtractionReady`, completes mission, transitions to RESULTS.
+- `completeMission(success)`: Calculates final score, bonuses, and grade.
+- `restartMission()`: Fully resets player position, timer, survivors, and inventory.
+- `showNotification(text, type, duration)`: Triggers HUD banner alert.
 
 ---
 
-## 4. Input & Control Mapping
+## 4. Survivor Catalog & Canonical IDs
 
-| Key / Input | Action | Behavior |
-| --- | --- | --- |
-| **W, A, S, D** | Movement | Moves relative to orbital camera yaw |
-| **SHIFT** | Sprint | Accelerates from 5.5 m/s to 9.8 m/s (drains Exo-Stamina) |
-| **MOUSE** | Camera Orbit | Click canvas to lock pointer; pitch clamped -0.55 to +0.95 rad |
-| **E** | Contextual Action | Opens triage modal near survivor; triggers evac at helipad |
-| **ESC** | Pause / Dismiss | Toggles pause menu; dismisses open triage modal |
+Do not modify or re-key these IDs, positions, or supply labels:
+
+| ID | Name | Role | Position `[x, y, z]` | Diagnosis / Condition | Required Supply Key | Supply Label |
+| --- | --- | --- | --- | --- | --- | --- |
+| `survivor-1` | **Elena Vance** | Structural Engineer | `[-16, 0, -10]` | Crush syndrome; pinned under collapsed reinforced beam | `toolkits` | Hydraulic Spreader Toolkit |
+| `survivor-2` | **Marcus Chen** | Metro Transit Tech | `[20, 0, -22]` | Acute toxic particulate inhalation in subway airshaft | `oxygen` | Emergency O2 Canister |
+| `survivor-3` | **Dr. Sarah Al-Jamil** | Emergency Physician | `[-6, 0, -50]` | Severe arterial lacerations from shattered glass canopy | `medkits` | Trauma Medkit |
 
 ---
 
-## 5. Team Git Branching & Merge Protocol
+## 5. Interaction & Proximity Rules
 
-All teammates branch off and merge into the integration branch:
+1. **Distance Thresholds:**
+   - Survivor interaction threshold: **`3.5 meters`** (`INTERACTION_DISTANCES.SURVIVOR`).
+   - Evac Helipad interaction threshold: **`5.0 meters`** (`INTERACTION_DISTANCES.EXTRACTION`).
+2. **Contextual HUD Banner:**
+   - Surfaces automatically when player is within range.
+   - For trapped survivors: `[E] STABILIZE [SURVIVOR_NAME] ([ROLE])`
+   - For stabilized survivors: `[SURVIVOR_NAME] is stabilized and awaiting extraction`
+   - For Extraction Helipad (Ready): `[E] ENTER HELIPAD & CALL EXTRACTION`
+   - For Extraction Helipad (Locked): `EXTRACTION UNAVAILABLE: Locate and rescue all survivors first`
+3. **Rescue Execution:**
+   - Pressing `[E]` near a trapped survivor opens `<RescueModal />`.
+   - Administering treatment deducts 1 unit of `requiredSupply`. If `supplies[key] <= 0`, action is blocked with an error toast.
+   - Stabilized survivors switch their ground beacon ring from red/amber to bright green.
+4. **Extraction Helipad (`[0, 0, -42]`):**
+   - Inactive/amber until all 3 survivors have status `RESCUED`.
+   - Upon rescuing survivor 3, phase updates to `EXTRACTION` and beacon pulses bright cyan/teal.
+   - Entering the helipad and pressing `[E]` finishes the mission and navigates to `RESULTS`.
+
+---
+
+## 6. Team Merge Protocol & Checklists
+
+All team branches must be created from `integration` and submit Pull Requests targeting `integration`:
 
 ```
-        feature/ui ──────────────┐
+        feature/environment ─────┐
         feature/gameplay ────────┤
-main ── feature/core ────────────┼──> INTEGRATION (AFTERLIGHT Complete)
-        feature/environment ─────┤
+main ── integration ─────────────┼──> [Niranjan Review & QA] ──> Production Release
+        feature/ui ──────────────┤
         feature/backend-qa ──────┘
 ```
 
-### PR Merge Rules:
-1. **Zero Collision Guarantee:** Do not create duplicate instances of `<Player>`, `<CameraController>`, `<World>`, or `useGameStore`.
-2. **File Isolation:** Each developer only edits files in their assigned directories.
-3. **Build Check:** Every branch must pass `npm run build` with 0 errors before PR merge.
-4. **Standalone Verification:** The game must launch and remain fully playable if any single teammate's branch is delayed.
+### Recommended Integration Sequence:
+1. **Merge 1: `feature/environment` (Siddappa)** — Expands visual city without altering gameplay logic.
+2. **Merge 2: `feature/gameplay` (Lukky)** — Integrates survivor behavior and objective flow.
+3. **Merge 3: `feature/ui` (Rajesh)** — Integrates enhanced HUD, menus, and styling.
+4. **Merge 4: `feature/backend-qa` (Venki)** — Adds backend scoring, leaderboard persistence, and test reports.
+
+---
+
+### Integration Review Checklists:
+
+#### 📋 Checklist for `feature/ui` (Rajesh):
+- [ ] Only files in `src/ui/**` and `src/styles/**` are modified.
+- [ ] No HTML or DOM elements are placed inside the Three.js `<Canvas>`.
+- [ ] HUD consumes `useGameStore` for timer, vitals, supplies, and radar coordinates.
+- [ ] UI overlays allow mouse clicks through to canvas using `.interactive` on interactive panels only.
+- [ ] `npm run build` succeeds with zero errors.
+
+#### 📋 Checklist for `feature/gameplay` (Lukky):
+- [ ] Only files in `src/systems/**`, `Survivors.jsx`, `RescueZone.jsx`, `Interactions.jsx` are modified.
+- [ ] Canonical survivor IDs (`survivor-1`, `survivor-2`, `survivor-3`) are preserved.
+- [ ] Supply consumption maps to valid keys: `medkits`, `oxygen`, `toolkits`.
+- [ ] Extraction only unlocks when `survivorsRescued >= 3`.
+- [ ] No duplicate player controllers or secondary animation loops are introduced.
+- [ ] `npm run build` succeeds with zero errors.
+
+#### 📋 Checklist for `feature/environment` (Siddappa):
+- [ ] Only files in `src/game/Environment.jsx` and `src/game/environment/**` are modified.
+- [ ] New collidable structures register AABB boxes via `globalCollisions.addBox()`.
+- [ ] Rubble and circular props register via `globalCollisions.addCylinder()`.
+- [ ] Polygon counts and materials are optimized for browser WebGL (60fps on standard laptops).
+- [ ] No second `<Canvas>` or camera is declared.
+- [ ] `npm run build` succeeds with zero errors.
+
+#### 📋 Checklist for `feature/backend-qa` (Venki):
+- [ ] Only files in `server/**`, `README.md`, and test suites are modified.
+- [ ] Frontend remains 100% playable even if Express/MongoDB is offline.
+- [ ] Endpoint `/api/health` returns status 200 with `{ status: 'online' }`.
+- [ ] Endpoint `/api/results` accepts mission score payload without crashing.
+- [ ] `npm run build` succeeds with zero errors.
+
+---
+
+## 7. Verification Commands
+
+Run before submitting any PR and after each merge into `integration`:
+
+```bash
+# 1. Verify build compilation
+npm run build
+
+# 2. Check git branch status
+git status
+
+# 3. Test dev server
+npm run dev
+```

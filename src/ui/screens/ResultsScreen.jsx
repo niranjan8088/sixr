@@ -7,6 +7,7 @@ import { formatTime } from '../../utils/helpers';
 export default function ResultsScreen() {
   const score = useGameStore((state) => state.score);
   const mission = useGameStore((state) => state.mission);
+  const survivors = useGameStore((state) => state.survivors);
   const restartMission = useGameStore((state) => state.restartMission);
 
   const isSuccess = score.success;
@@ -112,6 +113,55 @@ export default function ResultsScreen() {
             <div style={{ color: 'var(--text-muted)', fontSize: '11px' }}>CONSERVED SUPPLIES:</div>
             <div style={{ color: 'var(--accent-green)', fontSize: '16px', fontWeight: 600 }}>+{score.suppliesBonus} PTS</div>
           </div>
+        </div>
+
+        {/* Individual Survivor Outcome Manifest */}
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', letterSpacing: '1px', marginBottom: '8px' }}>
+            CIVILIAN CASUALTY & EVACUATION MANIFEST:
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+            {survivors.map((s) => {
+              const isSaved = s.status === 'RESCUED';
+              return (
+                <div key={s.id} style={{
+                  background: isSaved ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+                  border: `1px solid ${isSaved ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                  borderRadius: '3px',
+                  padding: '8px 10px'
+                }}>
+                  <div style={{ fontSize: '12px', fontWeight: 600, color: '#fff' }}>{s.name}</div>
+                  <div style={{ fontSize: '10px', color: isSaved ? '#10b981' : '#ef4444', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                    {isSaved ? '✓ STABILIZED' : '✗ UNLOCATED'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* AI Tactical Response Debrief Assessment */}
+        <div style={{
+          background: 'rgba(56, 189, 248, 0.06)',
+          borderLeft: '3px solid #38bdf8',
+          padding: '12px 16px',
+          marginBottom: '24px',
+          fontSize: '12px',
+          lineHeight: '1.6',
+          color: '#cbd5e1'
+        }}>
+          <div style={{ color: '#38bdf8', fontFamily: 'var(--font-mono)', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>
+            AI COMMAND POST TACTICAL DEBRIEF // SECTOR 4-B
+          </div>
+          {isSuccess ? (
+            <span>
+              Operative performed with exceptional emergency response competency. All 3 civilian trauma vectors stabilized according to triage priority. Route navigation minimized toxic hazard exposure and successfully extracted at Helipad Landing Zone within acceptable operational threshold.
+            </span>
+          ) : (
+            <span>
+              Mission aborted due to critical elapsed operational window. Hazard exposure and particulate saturation exceeded emergency parameters before extraction rendezvous was established.
+            </span>
+          )}
         </div>
 
         {/* Actions */}

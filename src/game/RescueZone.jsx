@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 import { useGameStore } from '../store/gameStore';
 import { GameConfig } from './GameConfig';
 
@@ -53,25 +54,36 @@ export default function RescueZone() {
         <meshBasicMaterial color={zoneColor} />
       </mesh>
 
-      {/* Vertical Holographic Evac Beacon Beam */}
-      <mesh ref={beaconPillarRef} position={[0, 6, 0]}>
-        <cylinderGeometry args={[radius * 0.85, radius * 0.85, 12, 24, 1, true]} />
+      {/* Vertical Cinematic Evac Beacon Pillar (Soft glowing column, no wireframe cage) */}
+      <mesh ref={beaconPillarRef} position={[0, 8, 0]}>
+        <cylinderGeometry args={[radius * 0.7, radius * 0.85, 16, 24, 1, true]} />
         <meshBasicMaterial
           color={zoneColor}
           transparent
-          opacity={isExtractionReady ? 0.35 : 0.1}
-          side={2}
-          wireframe
+          opacity={isExtractionReady ? 0.35 : 0.12}
+          side={THREE.DoubleSide}
+          depthWrite={false}
         />
       </mesh>
 
-      {/* Heli Beacon Searchlight */}
-      <pointLight
-        position={[0, 3, 0]}
-        color={zoneColor}
-        intensity={isExtractionReady ? 5 : 2}
-        distance={25}
-      />
+      {/* Perimeter LED Runway Guidance Strobe Beacons */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const angle = (i / 8) * Math.PI * 2;
+        const px = Math.cos(angle) * (radius - 0.2);
+        const pz = Math.sin(angle) * (radius - 0.2);
+        return (
+          <group key={`lz-beacon-${i}`} position={[px, 0.1, pz]}>
+            <mesh position={[0, 0.08, 0]}>
+              <cylinderGeometry args={[0.1, 0.14, 0.16, 10]} />
+              <meshStandardMaterial color="#1e293b" metalness={0.8} />
+            </mesh>
+            <mesh position={[0, 0.2, 0]}>
+              <sphereGeometry args={[0.07, 8, 8]} />
+              <meshBasicMaterial color={zoneColor} />
+            </mesh>
+          </group>
+        );
+      })}
     </group>
   );
 }

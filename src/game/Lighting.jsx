@@ -2,58 +2,81 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 
 export default function Lighting() {
+  const strobeLightRef = useRef();
   const beaconLightRef = useRef();
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    // Emergency amber beacon pulsing
+
+    // Unified emergency strobe alternating between red and blue (Smooth & Zero GPU Lag)
+    if (strobeLightRef.current) {
+      const isRed = Math.sin(t * 10) > 0;
+      strobeLightRef.current.color.set(isRed ? '#ff1e00' : '#0066ff');
+      strobeLightRef.current.intensity = Math.abs(Math.sin(t * 10)) > 0.4 ? 2.8 : 0.2;
+    }
+
+    // Evac helipad beacon
     if (beaconLightRef.current) {
-      beaconLightRef.current.intensity = 2.5 + Math.sin(t * 4) * 1.5;
+      beaconLightRef.current.intensity = 2.0 + Math.sin(t * 3) * 0.8;
     }
   });
 
   return (
     <group>
-      {/* Deep cool ambient illumination */}
-      <ambientLight color="#182230" intensity={0.8} />
+      {/* 1. Natural Daylight Hemispheric Ambient (Bright blue sky, warm earth ground bounce) */}
+      <hemisphereLight
+        skyColor="#b8d5f0"
+        groundColor="#4a4d44"
+        intensity={1.2}
+      />
 
-      {/* Main moody directional light (late afternoon / disaster fire glow) */}
+      {/* 2. Direct Golden Sunlight (Realistic late afternoon sun casting crisp, optimized shadows) */}
       <directionalLight
-        position={[30, 45, 20]}
-        intensity={1.8}
-        color="#ff9944"
+        position={[45, 50, 30]}
+        intensity={2.8}
+        color="#fff4dd"
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-camera-near={0.5}
-        shadow-camera-far={120}
-        shadow-camera-left={-40}
-        shadow-camera-right={40}
-        shadow-camera-top={40}
-        shadow-camera-bottom={-40}
+        shadow-camera-far={160}
+        shadow-camera-left={-55}
+        shadow-camera-right={55}
+        shadow-camera-top={55}
+        shadow-camera-bottom={-55}
+        shadow-bias={-0.0005}
       />
 
-      {/* Cold rim / sky fill light */}
-      <directionalLight position={[-25, 30, -35]} intensity={0.6} color="#4077aa" />
+      {/* 3. Soft Sky Diffuse Fill (Opposite horizon bounce) */}
+      <directionalLight
+        position={[-35, 30, -35]}
+        intensity={0.9}
+        color="#8faec9"
+      />
 
-      {/* Flashing emergency strobe near central crossroads */}
+      {/* 4. Single Unified Emergency Strobe PointLight in Intersection (Zero Lag) */}
       <pointLight
-        ref={beaconLightRef}
-        position={[0, 4, 0]}
-        color="#ff4400"
-        distance={25}
+        ref={strobeLightRef}
+        position={[-6.0, 2.8, -12.0]}
+        color="#ff1e00"
+        distance={22}
         decay={2}
       />
 
-      {/* Extraction zone beacon light */}
+      {/* 5. Static Warm Amber Streetlights (GTA V Style) */}
+      <pointLight position={[-8.8, 6.8, 8]} color="#f59e0b" distance={14} decay={2} intensity={1.2} />
+      <pointLight position={[8.8, 6.8, 8]} color="#f59e0b" distance={14} decay={2} intensity={1.2} />
+      <pointLight position={[-8.8, 6.8, -26]} color="#f59e0b" distance={14} decay={2} intensity={1.2} />
+      <pointLight position={[8.8, 6.8, -26]} color="#f59e0b" distance={14} decay={2} intensity={1.2} />
+
+      {/* 6. Helipad Evac Extraction Beacon */}
       <pointLight
+        ref={beaconLightRef}
         position={[0, 6, -42]}
-        color="#00ffaa"
-        intensity={3}
-        distance={30}
+        color="#00ffcc"
+        distance={28}
         decay={2}
       />
     </group>
   );
 }
-
