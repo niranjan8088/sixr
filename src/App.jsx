@@ -7,7 +7,7 @@ import { useGameStore } from './store/gameStore';
 import { GAME_PHASES } from './utils/constants';
 
 import MainMenu from './ui/screens/MainMenu';
-import MissionBriefing from './ui/screens/MissionBriefing';
+import BriefingScreen from './ui/screens/BriefingScreen';
 import PauseMenu from './ui/screens/PauseMenu';
 import ResultsScreen from './ui/screens/ResultsScreen';
 import HUD from './ui/hud/HUD';
@@ -18,6 +18,8 @@ export default function App() {
   const phase = useGameStore((state) => state.phase);
   const activeRescueSurvivor = useGameStore((state) => state.activeRescueSurvivor);
   const notification = useGameStore((state) => state.notification);
+  const startMission = useGameStore((state) => state.startMission);
+  const setPhase = useGameStore((state) => state.setPhase);
 
   // Initialize input and game controllers on mount
   useEffect(() => {
@@ -97,7 +99,12 @@ export default function App() {
       {/* UI Screens Layer */}
       <div className="ui-layer">
         {phase === GAME_PHASES.MENU && <MainMenu />}
-        {phase === GAME_PHASES.BRIEFING && <MissionBriefing />}
+        {phase === GAME_PHASES.BRIEFING && (
+          <BriefingScreen
+            onDeploy={startMission}
+            onBack={() => setPhase(GAME_PHASES.MENU)}
+          />
+        )}
         
         {(phase === GAME_PHASES.PLAYING || phase === GAME_PHASES.EXTRACTION) && (
           <HUD />

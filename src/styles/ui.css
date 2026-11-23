@@ -378,3 +378,1136 @@
     font-size: 12px;
   }
 }
+
+/* -----------------------------------------------------------------------------
+   10. MAIN MENU (STEP 2)
+   ----------------------------------------------------------------------------- */
+.al-menu-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--al-color-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(24px, 4vh, 48px) clamp(28px, 5vw, 64px);
+  pointer-events: auto;
+  z-index: 30;
+}
+
+/* Background image & subtle slow camera drift */
+.al-menu-bg {
+  position: absolute;
+  top: -5%;
+  left: -5%;
+  width: 110%;
+  height: 110%;
+  background-image: 
+    radial-gradient(ellipse at 80% 30%, rgba(255, 107, 36, 0.16) 0%, transparent 55%),
+    radial-gradient(circle at 15% 85%, rgba(130, 200, 233, 0.08) 0%, transparent 45%),
+    url('/images/afterlight-menu.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: alMenuSlowDrift 40s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes alMenuSlowDrift {
+  0% { transform: scale(1) translate(0, 0); }
+  50% { transform: scale(1.03) translate(-1%, -1%); }
+  100% { transform: scale(1.05) translate(1%, 0.5%); }
+}
+
+/* Dark cinematic gradient overlay + vignette */
+.al-menu-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(to right, rgba(8, 10, 12, 0.95) 0%, rgba(8, 10, 12, 0.82) 42%, rgba(8, 10, 12, 0.45) 80%, rgba(8, 10, 12, 0.65) 100%),
+    radial-gradient(circle at center, transparent 35%, rgba(4, 5, 7, 0.75) 85%, rgba(2, 3, 4, 0.95) 100%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Subtle orange atmospheric lighting sweep */
+.al-menu-ambience {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 60% 50%, rgba(255, 107, 36, 0.07) 0%, transparent 60%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Top bar with Live Response Network indicator */
+.al-menu-topbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(241, 241, 237, 0.08);
+  padding-bottom: 12px;
+}
+
+.al-menu-top-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--al-color-text-muted);
+  text-transform: uppercase;
+}
+
+.al-menu-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--al-color-text);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.al-menu-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--al-color-orange);
+  box-shadow: 0 0 10px var(--al-color-orange);
+  animation: alMenuPulseDot 1.8s infinite ease-in-out;
+}
+
+@keyframes alMenuPulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+/* Main left-aligned content area */
+.al-menu-content {
+  position: relative;
+  z-index: 10;
+  max-width: 540px;
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Brand Section */
+.al-menu-brand {
+  margin-bottom: 32px;
+  animation: alFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.al-menu-label {
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--al-color-orange);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+
+.al-menu-title {
+  font-family: var(--al-font-brand);
+  font-size: clamp(48px, 6vw, 76px);
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--al-color-text);
+  line-height: 1;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.al-menu-title-accent {
+  color: var(--al-color-orange);
+  text-shadow: 0 0 28px rgba(255, 107, 36, 0.55);
+}
+
+.al-menu-subtitle {
+  font-family: var(--al-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 2.5px;
+  line-height: 1.6;
+  color: var(--al-color-text-muted);
+  text-transform: uppercase;
+  border-left: 2px solid var(--al-color-orange);
+  padding-left: 14px;
+  white-space: pre-line;
+}
+
+/* Navigation Menu Stack */
+.al-menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 340px;
+  animation: alSlideInTop 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Buttons */
+.al-menu-item-btn {
+  position: relative;
+  width: 100%;
+  background: rgba(17, 22, 27, 0.65);
+  border: 1px solid var(--al-border-subtle);
+  border-left: 3px solid rgba(241, 241, 237, 0.2);
+  color: var(--al-color-text);
+  font-family: var(--al-font-brand);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 14px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  outline: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all var(--al-transition-fast);
+  border-radius: 2px;
+}
+
+.al-menu-item-btn:hover {
+  background: rgba(26, 34, 42, 0.85);
+  border-color: rgba(255, 107, 36, 0.5);
+  border-left: 3px solid var(--al-color-orange);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), var(--al-shadow-glow-orange);
+  color: #ffffff;
+  transform: translateX(4px);
+}
+
+.al-menu-item-btn:focus-visible {
+  border-color: var(--al-color-orange);
+  border-left-color: var(--al-color-orange);
+  box-shadow: 0 0 0 2px rgba(255, 107, 36, 0.4), var(--al-shadow-glow-orange);
+  outline: none;
+}
+
+.al-menu-item-btn:active {
+  transform: translateX(2px) translateY(1px);
+}
+
+.al-menu-item-primary {
+  background: linear-gradient(90deg, rgba(255, 107, 36, 0.22) 0%, rgba(17, 22, 27, 0.75) 100%);
+  border-color: rgba(255, 107, 36, 0.4);
+  border-left: 3px solid var(--al-color-orange);
+}
+
+.al-menu-item-primary:hover {
+  background: linear-gradient(90deg, rgba(255, 107, 36, 0.45) 0%, rgba(22, 29, 36, 0.9) 100%);
+  border-color: var(--al-color-orange);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7), 0 0 24px rgba(255, 107, 36, 0.4);
+}
+
+.al-menu-btn-icon {
+  opacity: 0.6;
+  transition: transform var(--al-transition-fast), opacity var(--al-transition-fast);
+}
+
+.al-menu-item-btn:hover .al-menu-btn-icon {
+  opacity: 1;
+  transform: translateX(3px);
+  color: var(--al-color-orange);
+}
+
+/* Footer Section */
+.al-menu-footer {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(241, 241, 237, 0.08);
+  padding-top: 14px;
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--al-color-text-dim);
+  text-transform: uppercase;
+}
+
+.al-menu-footer-item strong {
+  color: var(--al-color-text-muted);
+}
+
+.al-menu-status-ready {
+  color: var(--al-color-orange);
+  font-weight: 700;
+}
+
+/* Overlays (Controls, Settings, Credits) */
+.al-menu-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 6, 8, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.al-menu-modal {
+  max-width: 560px;
+  width: 100%;
+  background: var(--al-color-panel);
+  border: 1px solid var(--al-border-accent);
+  box-shadow: var(--al-shadow-panel), var(--al-shadow-glow-orange);
+  padding: 28px 32px;
+  border-radius: 3px;
+  position: relative;
+  animation: alFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.al-menu-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--al-border-subtle);
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+}
+
+.al-menu-modal-title {
+  font-family: var(--al-font-brand);
+  font-size: 20px;
+  letter-spacing: 2px;
+  color: var(--al-color-text);
+  text-transform: uppercase;
+}
+
+.al-menu-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--al-color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  transition: color var(--al-transition-fast);
+}
+
+.al-menu-modal-close:hover {
+  color: var(--al-color-text);
+}
+
+.al-menu-modal-close:focus-visible {
+  outline: 2px solid var(--al-color-orange);
+}
+
+.al-menu-modal-body {
+  font-family: var(--al-font-body);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--al-color-text-muted);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Responsive tweaks for 1366x768 and smaller screens */
+@media (max-height: 800px) {
+  .al-menu-brand {
+    margin-bottom: 20px;
+  }
+  .al-menu-title {
+    font-size: 46px;
+    margin-bottom: 8px;
+  }
+  .al-menu-nav {
+    gap: 8px;
+  }
+  .al-menu-item-btn {
+    padding: 11px 18px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 900px) {
+  .al-menu-container {
+    padding: 20px 24px;
+  }
+  .al-menu-topbar {
+    font-size: 10px;
+  }
+  .al-menu-footer {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+  .al-menu-nav {
+    max-width: 100%;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   11. AAA CINEMATIC HUD (STEP 2 UPGRADE)
+   ----------------------------------------------------------------------------- */
+.al-hud-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  padding: clamp(16px, 2.5vw, 24px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 25;
+  box-sizing: border-box;
+}
+
+/* Reusable Tactical HUD Panel */
+.al-hud-panel {
+  background: rgba(17, 22, 27, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(241, 241, 237, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  position: relative;
+  transition: all var(--al-transition-normal);
+}
+
+/* Subtle corner brackets */
+.al-hud-panel::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 6px;
+  height: 6px;
+  border-top: 1.5px solid var(--al-color-orange);
+  border-left: 1.5px solid var(--al-color-orange);
+  pointer-events: none;
+}
+
+.al-hud-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 6px;
+  height: 6px;
+  border-bottom: 1.5px solid var(--al-color-orange);
+  border-right: 1.5px solid var(--al-color-orange);
+  pointer-events: none;
+}
+
+/* Top Section */
+.al-hud-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  gap: 16px;
+}
+
+/* 1. Mission Objective Panel */
+.al-hud-objective {
+  padding: 12px 18px;
+  max-width: 440px;
+  border-left: 3px solid var(--al-color-orange);
+}
+
+.al-hud-objective-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--al-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--al-color-orange);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.al-hud-objective-text {
+  font-family: var(--al-font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--al-color-text);
+  line-height: 1.4;
+}
+
+/* 2. Timer Panel */
+.al-hud-timer {
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(17, 22, 27, 0.85);
+  border-color: rgba(255, 107, 36, 0.3);
+}
+
+.al-hud-timer-critical {
+  border-color: var(--al-color-red);
+  background: rgba(35, 12, 14, 0.9);
+  animation: alPulseDanger 1.2s infinite ease-in-out;
+}
+
+@keyframes alPulseDanger {
+  0%, 100% { box-shadow: 0 0 10px var(--al-color-red-glow); }
+  50% { box-shadow: 0 0 24px rgba(217, 76, 69, 0.7); }
+}
+
+.al-hud-timer-label {
+  font-family: var(--al-font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--al-color-text-muted);
+  text-transform: uppercase;
+}
+
+.al-hud-timer-value {
+  font-family: var(--al-font-mono);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--al-color-text);
+  letter-spacing: 1px;
+}
+
+/* 3. Top-Right Column (Radar & Survivor Count) */
+.al-hud-top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* Radar presentation */
+.al-hud-radar-frame {
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 107, 36, 0.35);
+  background: radial-gradient(circle, rgba(17, 22, 27, 0.9) 25%, rgba(8, 10, 12, 0.98) 100%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.8);
+}
+
+.al-hud-radar-sweep {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 63px;
+  height: 63px;
+  transform-origin: top left;
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 107, 36, 0.3) 35deg, transparent 45deg);
+  animation: alRadarSweep 3.2s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes alRadarSweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Survivor status badge */
+.al-hud-survivors-pill {
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--al-color-text);
+}
+
+/* Center Reticle & Context Interaction Prompt */
+.al-hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto 0;
+}
+
+.al-hud-reticle {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(241, 241, 237, 0.45);
+  box-shadow: 0 0 6px rgba(241, 241, 237, 0.6);
+  margin-bottom: 16px;
+}
+
+.al-hud-prompt {
+  padding: 10px 22px;
+  border: 1px solid var(--al-color-orange);
+  box-shadow: 0 0 24px var(--al-color-orange-glow), 0 8px 30px rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(17, 22, 27, 0.94);
+  pointer-events: auto;
+  animation: alFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.al-hud-prompt-keycap {
+  background: linear-gradient(135deg, #FF6B24 0%, #D94C45 100%);
+  color: #080A0C;
+  font-family: var(--al-font-mono);
+  font-size: 13px;
+  font-weight: 900;
+  padding: 3px 9px;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(255, 107, 36, 0.6);
+}
+
+.al-hud-prompt-label {
+  font-family: var(--al-font-brand);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--al-color-text);
+  text-transform: uppercase;
+}
+
+/* Bottom Bar */
+.al-hud-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  gap: 16px;
+}
+
+/* 5. Player Vitals Panel (Bottom Left) */
+.al-hud-vitals {
+  padding: 14px 20px;
+  min-width: 240px;
+}
+
+.al-hud-vitals-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--al-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--al-color-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.al-hud-gauge-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.al-hud-gauge-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--al-font-mono);
+  font-size: 10px;
+  margin-bottom: 3px;
+}
+
+.al-hud-gauge-bar {
+  width: 100%;
+  height: 5px;
+  background: rgba(241, 241, 237, 0.08);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.al-hud-gauge-fill-cyan {
+  height: 100%;
+  background: linear-gradient(90deg, #50A0C0, #82C8E9);
+  box-shadow: 0 0 8px var(--al-color-blue-glow);
+  transition: width 0.15s ease-out;
+}
+
+.al-hud-gauge-fill-stamina {
+  height: 100%;
+  background: linear-gradient(90deg, #D94C45, #FF6B24);
+  box-shadow: 0 0 8px var(--al-color-orange-glow);
+  transition: width 0.08s linear;
+}
+
+/* 6. Inventory Panel (Bottom Right) */
+.al-hud-inventory {
+  padding: 12px 20px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.al-hud-inv-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.al-hud-inv-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.al-hud-inv-label {
+  font-family: var(--al-font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--al-color-text-muted);
+  text-transform: uppercase;
+}
+
+.al-hud-inv-count {
+  font-family: var(--al-font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--al-color-text);
+}
+
+.al-hud-inv-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(241, 241, 237, 0.1);
+}
+
+/* Responsive constraints for 1366x768 and smaller screens */
+@media (max-width: 1366px), (max-height: 800px) {
+  .al-hud-objective {
+    max-width: 360px;
+    padding: 10px 14px;
+  }
+  .al-hud-objective-text {
+    font-size: 12px;
+  }
+  .al-hud-timer-value {
+    font-size: 20px;
+  }
+  .al-hud-radar-frame {
+    width: 112px;
+    height: 112px;
+  }
+  .al-hud-radar-sweep {
+    width: 56px;
+    height: 56px;
+  }
+  .al-hud-vitals {
+    min-width: 210px;
+    padding: 12px 16px;
+  }
+  .al-hud-inventory {
+    padding: 10px 16px;
+    gap: 14px;
+  }
+  .al-hud-inv-count {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 850px) {
+  .al-hud-container {
+    padding: 12px;
+  }
+  .al-hud-objective {
+    max-width: 280px;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+   12. CINEMATIC MISSION BRIEFING SCREEN (STEP 3)
+   ----------------------------------------------------------------------------- */
+.al-briefing-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--al-color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 4vh, 48px) clamp(20px, 4vw, 40px);
+  pointer-events: auto;
+  z-index: 40;
+  box-sizing: border-box;
+}
+
+/* Background image & subtle cinematic dark overlay */
+.al-briefing-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(ellipse at 70% 30%, rgba(255, 107, 36, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 20% 80%, rgba(130, 200, 233, 0.06) 0%, transparent 50%),
+    linear-gradient(to bottom, rgba(8, 10, 12, 0.88) 0%, rgba(8, 10, 12, 0.96) 100%),
+    url('/images/afterlight-menu.jpg');
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Central Dossier Card */
+.al-briefing-card {
+  position: relative;
+  z-index: 10;
+  max-width: 780px;
+  width: 100%;
+  background: rgba(17, 22, 27, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(241, 241, 237, 0.12);
+  border-radius: 3px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 0, 0, 0.6);
+  padding: clamp(28px, 4vh, 40px) clamp(28px, 4vw, 44px);
+  animation: alFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Corner Tactical Accents */
+.al-briefing-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid var(--al-color-orange);
+  border-left: 2px solid var(--al-color-orange);
+  pointer-events: none;
+}
+
+.al-briefing-card::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-bottom: 2px solid var(--al-color-orange);
+  border-right: 2px solid var(--al-color-orange);
+  pointer-events: none;
+}
+
+/* Top Meta Row */
+.al-briefing-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(241, 241, 237, 0.08);
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+}
+
+.al-briefing-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.al-briefing-mission-num {
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: var(--al-color-orange);
+  text-transform: uppercase;
+  background: rgba(255, 107, 36, 0.12);
+  border: 1px solid rgba(255, 107, 36, 0.35);
+  padding: 3px 10px;
+  border-radius: 2px;
+}
+
+.al-briefing-sector {
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--al-color-blue);
+  text-transform: uppercase;
+}
+
+.al-briefing-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--al-color-text-muted);
+  text-transform: uppercase;
+}
+
+.al-briefing-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--al-color-orange);
+  box-shadow: 0 0 8px var(--al-color-orange);
+  animation: alMenuPulseDot 1.8s infinite ease-in-out;
+}
+
+/* Grand Cinematic Title */
+.al-briefing-title {
+  font-family: var(--al-font-brand);
+  font-size: clamp(34px, 4.5vw, 48px);
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--al-color-text);
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.8);
+}
+
+/* Story Narrative Block */
+.al-briefing-story {
+  font-family: var(--al-font-body);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--al-color-text-muted);
+  background: rgba(8, 10, 12, 0.45);
+  border-left: 3px solid var(--al-color-orange);
+  padding: 14px 18px;
+  border-radius: 0 3px 3px 0;
+  margin-bottom: 24px;
+}
+
+/* Section Subheaders */
+.al-briefing-label {
+  font-family: var(--al-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--al-color-orange);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Objectives List Grid */
+.al-briefing-objectives-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.al-briefing-obj-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: rgba(241, 241, 237, 0.03);
+  border: 1px solid rgba(241, 241, 237, 0.08);
+  border-radius: 2px;
+  font-family: var(--al-font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--al-color-text);
+  transition: all var(--al-transition-fast);
+}
+
+.al-briefing-obj-item:hover {
+  background: rgba(241, 241, 237, 0.06);
+  border-color: rgba(130, 200, 233, 0.3);
+}
+
+.al-briefing-obj-icon {
+  color: var(--al-color-blue);
+  flex-shrink: 0;
+}
+
+/* Resource Display Tray */
+.al-briefing-resources {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(8, 10, 12, 0.6);
+  border: 1px solid rgba(241, 241, 237, 0.08);
+  border-radius: 3px;
+  margin-bottom: 28px;
+}
+
+.al-briefing-res-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.al-briefing-res-label {
+  font-family: var(--al-font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--al-color-text-muted);
+  text-transform: uppercase;
+}
+
+.al-briefing-res-val {
+  font-family: var(--al-font-mono);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Actions Footer */
+.al-briefing-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(241, 241, 237, 0.08);
+  padding-top: 20px;
+  gap: 16px;
+}
+
+.al-briefing-btn-back {
+  background: rgba(241, 241, 237, 0.04);
+  border: 1px solid rgba(241, 241, 237, 0.2);
+  color: var(--al-color-text-muted);
+  font-family: var(--al-font-brand);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 1.8px;
+  padding: 12px 28px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all var(--al-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.al-briefing-btn-back:hover {
+  background: rgba(241, 241, 237, 0.12);
+  border-color: rgba(241, 241, 237, 0.4);
+  color: #fff;
+  transform: translateX(-2px);
+}
+
+.al-briefing-btn-back:focus-visible {
+  outline: 2px solid var(--al-color-orange);
+}
+
+.al-briefing-btn-deploy {
+  background: linear-gradient(135deg, rgba(255, 107, 36, 0.3) 0%, rgba(217, 76, 69, 0.45) 100%);
+  border: 1px solid var(--al-color-orange);
+  color: #fff;
+  font-family: var(--al-font-brand);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 12px 36px;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  box-shadow: var(--al-shadow-glow-orange);
+  transition: all var(--al-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.al-briefing-btn-deploy:hover {
+  background: linear-gradient(135deg, rgba(255, 107, 36, 0.6) 0%, rgba(230, 80, 45, 0.8) 100%);
+  box-shadow: 0 0 28px rgba(255, 107, 36, 0.65);
+  transform: translateY(-1px);
+}
+
+.al-briefing-btn-deploy:active {
+  transform: translateY(1px);
+}
+
+.al-briefing-btn-deploy:focus-visible {
+  outline: 2px solid #fff;
+}
+
+/* Responsive queries */
+@media (max-width: 1366px), (max-height: 800px) {
+  .al-briefing-card {
+    padding: 24px 32px;
+  }
+  .al-briefing-title {
+    font-size: 34px;
+    margin-bottom: 12px;
+  }
+  .al-briefing-story {
+    font-size: 12.5px;
+    margin-bottom: 18px;
+    padding: 12px 14px;
+  }
+  .al-briefing-objectives-grid {
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .al-briefing-obj-item {
+    font-size: 12px;
+    padding: 9px 12px;
+  }
+  .al-briefing-resources {
+    margin-bottom: 20px;
+    padding: 10px 14px;
+  }
+  .al-briefing-res-val {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 700px) {
+  .al-briefing-objectives-grid {
+    grid-template-columns: 1fr;
+  }
+  .al-briefing-resources {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .al-briefing-actions {
+    flex-direction: column-reverse;
+  }
+  .al-briefing-btn-deploy, .al-briefing-btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+}

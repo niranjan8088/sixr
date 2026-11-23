@@ -3,8 +3,28 @@ import { useGameStore } from '../../store/gameStore';
 import { formatTime, getDistance2D } from '../../utils/helpers';
 import { GameConfig } from '../../game/GameConfig';
 import { SURVIVOR_STATUS } from '../../utils/constants';
-import { Shield, Clock, Users, Package, Heart, Zap, Crosshair } from 'lucide-react';
+import '../../styles/ui.css';
+import {
+  Shield,
+  Clock,
+  Users,
+  Package,
+  Heart,
+  Zap,
+  Radio,
+  Crosshair,
+  AlertTriangle
+} from 'lucide-react';
 
+/**
+ * AFTERLIGHT — AAA Cinematic Gameplay HUD (Step 2 UI Upgrade)
+ * Premium tactical survival rescue HUD:
+ * - Dark charcoal translucent panels
+ * - Emergency orange accents
+ * - Cold cyan vitals & technology indicators
+ * - Critical red warnings
+ * - Clean typography & spacious layout preserving the 3D world view
+ */
 export default function HUD() {
   const mission = useGameStore((state) => state.mission);
   const player = useGameStore((state) => state.player);
@@ -14,92 +34,72 @@ export default function HUD() {
   const cameraYaw = useGameStore((state) => state.cameraRotation.yaw);
 
   const isLowTime = mission.timer <= 60;
+  const isCriticalTime = mission.timer <= 30;
 
-  // Radar calculations
-  const radarRadius = 60; // 60px display radius
-  const radarScale = 0.85; // meters to pixels scale
+  // Radar scale factor (meters to radar pixels)
+  const radarScale = 0.85;
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      pointerEvents: 'none',
-      padding: '20px',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      zIndex: 20
-    }}>
-      {/* TOP BAR: Objective & Mission Clock */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        {/* Left: Objective Display */}
-        <div className="sci-panel" style={{ padding: '12px 18px', maxWidth: '420px', borderLeft: '4px solid var(--accent-amber)' }}>
-          <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--accent-amber)', letterSpacing: '1.5px', marginBottom: '4px' }}>
-            CURRENT OBJECTIVE
+    <div className="al-hud-container">
+      {/* ================= 1. TOP BAR ================= */}
+      <div className="al-hud-top">
+        {/* Top-Left: Mission Objective Panel */}
+        <div className="al-hud-panel al-hud-objective">
+          <div className="al-hud-objective-tag">
+            <Radio size={12} className="al-text-orange" />
+            <span>MISSION DIRECTIVE // SECTOR 4-B</span>
           </div>
-          <div style={{ fontSize: '14px', fontWeight: 600, color: '#fff', lineHeight: '1.4' }}>
+          <div className="al-hud-objective-text">
             {mission.currentObjective}
           </div>
         </div>
 
-        {/* Center: Mission Timer */}
-        <div className="sci-panel" style={{
-          padding: '10px 24px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          border: isLowTime ? '1px solid var(--accent-red)' : '1px solid rgba(255, 120, 30, 0.35)',
-          background: isLowTime ? 'rgba(40, 10, 10, 0.85)' : 'rgba(10, 14, 20, 0.85)'
-        }}>
-          <Clock size={20} color={isLowTime ? 'var(--accent-red)' : 'var(--accent-amber)'} />
+        {/* Top-Center: Tactical Mission Countdown Timer */}
+        <div className={`al-hud-panel al-hud-timer ${isLowTime ? 'al-hud-timer-critical' : ''}`}>
+          <Clock
+            size={18}
+            color={isLowTime ? 'var(--al-color-red)' : 'var(--al-color-orange)'}
+          />
           <div>
-            <div style={{ fontSize: '10px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>TIME REMAINING</div>
-            <div style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '24px',
-              fontWeight: 700,
-              color: isLowTime ? 'var(--accent-red)' : '#fff',
-              lineHeight: 1
-            }}>
+            <div className="al-hud-timer-label">
+              {isCriticalTime ? 'CRITICAL EVAC TIMEOUT' : 'TIME REMAINING'}
+            </div>
+            <div
+              className="al-hud-timer-value"
+              style={{ color: isLowTime ? 'var(--al-color-red)' : 'var(--al-color-text)' }}
+            >
               {formatTime(mission.timer)}
             </div>
           </div>
         </div>
 
-        {/* Right: Tactical Radar & Survivor Counter */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' }}>
-          {/* Radar circle */}
-          <div className="sci-panel" style={{
-            width: '130px',
-            height: '130px',
-            borderRadius: '50%',
-            position: 'relative',
-            overflow: 'hidden',
-            border: '2px solid rgba(255, 120, 30, 0.4)',
-            background: 'radial-gradient(circle, rgba(12, 18, 25, 0.9) 30%, rgba(5, 8, 12, 0.95) 100%)'
-          }}>
-            {/* Radar Crosshairs */}
-            <div style={{ position: 'absolute', top: '50%', left: 0, width: '100%', height: '1px', background: 'rgba(255, 120, 30, 0.2)' }} />
-            <div style={{ position: 'absolute', top: 0, left: '50%', width: '1px', height: '100%', background: 'rgba(255, 120, 30, 0.2)' }} />
-            <div style={{ position: 'absolute', top: '15%', left: '15%', width: '70%', height: '70%', borderRadius: '50%', border: '1px dashed rgba(255, 120, 30, 0.2)' }} />
+        {/* Top-Right: Tactical Radar & Survivor Counter */}
+        <div className="al-hud-top-right">
+          {/* Tactical Circular Radar */}
+          <div className="al-hud-radar-frame">
+            {/* Range Crosshairs */}
+            <div style={{ position: 'absolute', top: '50%', left: 0, width: '100%', height: '1px', background: 'rgba(255, 107, 36, 0.18)' }} />
+            <div style={{ position: 'absolute', top: 0, left: '50%', width: '1px', height: '100%', background: 'rgba(255, 107, 36, 0.18)' }} />
+            <div style={{ position: 'absolute', top: '20%', left: '20%', width: '60%', height: '60%', borderRadius: '50%', border: '1px dashed rgba(255, 107, 36, 0.2)' }} />
 
-            {/* Player Center Blip & Orientation */}
+            {/* Rotating Tactical Radar Sweep */}
+            <div className="al-hud-radar-sweep" />
+
+            {/* Center Player Blip (Cold Cyan) */}
             <div style={{
               position: 'absolute',
               top: '50%',
               left: '50%',
-              width: '8px',
-              height: '8px',
-              background: '#00d2ff',
+              width: '7px',
+              height: '7px',
+              background: 'var(--al-color-blue)',
               borderRadius: '50%',
               transform: 'translate(-50%, -50%)',
-              boxShadow: '0 0 6px #00d2ff'
+              boxShadow: '0 0 8px var(--al-color-blue)',
+              zIndex: 3
             }} />
 
-            {/* Survivor Radar Blips */}
+            {/* Survivor Blips */}
             {survivors.map((s) => {
               const dx = s.position[0] - player.position[0];
               const dz = s.position[2] - player.position[2];
@@ -110,31 +110,35 @@ export default function HUD() {
               const rx = dx * cosY - dz * sinY;
               const rz = dx * sinY + dz * cosY;
 
-              const px = 65 + rx * radarScale;
-              const py = 65 + rz * radarScale;
+              const px = 63 + rx * radarScale;
+              const py = 63 + rz * radarScale;
 
-              // Only render if within radar perimeter
-              const distFromCenter = Math.sqrt((px - 65) ** 2 + (py - 65) ** 2);
-              if (distFromCenter > 58) return null;
+              // Only render within circular radar perimeter
+              const distFromCenter = Math.sqrt((px - 63) ** 2 + (py - 63) ** 2);
+              if (distFromCenter > 56) return null;
 
               const isRescued = s.status === SURVIVOR_STATUS.RESCUED;
 
               return (
-                <div key={s.id} style={{
-                  position: 'absolute',
-                  left: `${px}px`,
-                  top: `${py}px`,
-                  width: '7px',
-                  height: '7px',
-                  borderRadius: '50%',
-                  background: isRescued ? '#00ffaa' : '#ff4400',
-                  transform: 'translate(-50%, -50%)',
-                  boxShadow: `0 0 6px ${isRescued ? '#00ffaa' : '#ff4400'}`
-                }} />
+                <div
+                  key={s.id}
+                  style={{
+                    position: 'absolute',
+                    left: `${px}px`,
+                    top: `${py}px`,
+                    width: '7px',
+                    height: '7px',
+                    borderRadius: '50%',
+                    background: isRescued ? 'var(--al-color-blue)' : 'var(--al-color-orange)',
+                    transform: 'translate(-50%, -50%)',
+                    boxShadow: `0 0 7px ${isRescued ? 'var(--al-color-blue)' : 'var(--al-color-orange)'}`,
+                    zIndex: 2
+                  }}
+                />
               );
             })}
 
-            {/* Evac Helipad Radar Blip */}
+            {/* Evac Helipad Beacon Blip */}
             {(() => {
               const evacPos = GameConfig.mission.extractionZone.position;
               const dx = evacPos[0] - player.position[0];
@@ -145,129 +149,182 @@ export default function HUD() {
               const rx = dx * cosY - dz * sinY;
               const rz = dx * sinY + dz * cosY;
 
-              const px = 65 + rx * radarScale;
-              const py = 65 + rz * radarScale;
-              const distFromCenter = Math.sqrt((px - 65) ** 2 + (py - 65) ** 2);
-              if (distFromCenter > 58) return null;
+              const px = 63 + rx * radarScale;
+              const py = 63 + rz * radarScale;
+              const distFromCenter = Math.sqrt((px - 63) ** 2 + (py - 63) ** 2);
+              if (distFromCenter > 56) return null;
 
               return (
-                <div style={{
-                  position: 'absolute',
-                  left: `${px}px`,
-                  top: `${py}px`,
-                  width: '9px',
-                  height: '9px',
-                  background: '#ffaa00',
-                  borderRadius: '2px',
-                  transform: 'translate(-50%, -50%)',
-                  boxShadow: '0 0 8px #ffaa00'
-                }} />
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `${px}px`,
+                    top: `${py}px`,
+                    width: '8px',
+                    height: '8px',
+                    background: mission.isExtractionReady ? 'var(--al-color-orange)' : 'rgba(255, 107, 36, 0.4)',
+                    borderRadius: '2px',
+                    transform: 'translate(-50%, -50%)',
+                    boxShadow: mission.isExtractionReady ? '0 0 10px var(--al-color-orange)' : 'none',
+                    zIndex: 2
+                  }}
+                />
               );
             })()}
           </div>
 
           {/* Survivors Saved Counter Badge */}
-          <div className="sci-panel" style={{ padding: '6px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={15} color="var(--accent-amber)" />
-            <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)' }}>
-              SURVIVORS: <strong style={{ color: 'var(--accent-green)' }}>{mission.survivorsRescued}</strong> / {mission.totalSurvivors}
+          <div className="al-hud-panel al-hud-survivors-pill">
+            <Users size={14} className="al-text-orange" />
+            <span>
+              SURVIVORS:{' '}
+              <strong style={{ color: 'var(--al-color-blue)' }}>
+                {mission.survivorsRescued}
+              </strong>{' '}
+              / {mission.totalSurvivors}
             </span>
           </div>
         </div>
       </div>
 
-      {/* CENTER: Contextual Interaction Notification */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        {/* Subtle Crosshair Reticle */}
-        <div style={{ width: '12px', height: '12px', border: '1px solid rgba(255, 255, 255, 0.4)', borderRadius: '50%', marginBottom: '14px' }} />
+      {/* ================= 2. CENTER SECTION ================= */}
+      <div className="al-hud-center">
+        {/* Minimal Tactical Center Reticle */}
+        <div className="al-hud-reticle" />
 
-        {/* Interaction Banner */}
+        {/* Contextual Interaction Prompt [E] */}
         {interaction.active && (
-          <div className="sci-panel interactive" style={{
-            padding: '12px 28px',
-            border: '1px solid var(--accent-amber)',
-            boxShadow: '0 0 24px rgba(255, 102, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            animation: 'pulseGlow 2s infinite ease-in-out'
-          }}>
-            <div style={{
-              background: 'var(--accent-amber)',
-              color: '#000',
-              fontWeight: 800,
-              fontSize: '13px',
-              padding: '2px 8px',
-              borderRadius: '2px',
-              fontFamily: 'var(--font-mono)'
-            }}>
-              E
-            </div>
-            <span style={{ fontSize: '14px', fontFamily: 'var(--font-display)', letterSpacing: '1px', fontWeight: 600 }}>
+          <div className="al-hud-panel al-hud-prompt">
+            <div className="al-hud-prompt-keycap">E</div>
+            <div className="al-hud-prompt-label">
               {interaction.promptText}
-            </span>
+            </div>
+            {interaction.distance !== undefined && interaction.distance < 900 && (
+              <div style={{
+                fontFamily: 'var(--al-font-mono)',
+                fontSize: '11px',
+                color: 'var(--al-color-blue)',
+                paddingLeft: '8px',
+                borderLeft: '1px solid rgba(241, 241, 237, 0.15)'
+              }}>
+                {Math.round(interaction.distance * 10) / 10}M
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* BOTTOM BAR: Supplies & Operative Vitals */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-        {/* Left: Player Vitals (Health & Stamina) */}
-        <div className="sci-panel" style={{ padding: '14px 20px', minWidth: '220px' }}>
-          <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Shield size={14} color="var(--accent-blue)" /> RESPONDER VITALS
-          </div>
-
-          {/* Health Bar */}
-          <div style={{ marginBottom: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'var(--font-mono)', marginBottom: '3px' }}>
-              <span>SUIT INTEGRITY</span>
-              <span>100%</span>
+      {/* ================= 3. BOTTOM BAR ================= */}
+      <div className="al-hud-bottom">
+        {/* Bottom-Left: Player Responder Vitals */}
+        <div className="al-hud-panel al-hud-vitals">
+          <div className="al-hud-vitals-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Shield size={13} className="al-text-blue" />
+              <span>RESPONDER VITALS</span>
             </div>
-            <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: '100%', height: '100%', background: 'var(--accent-green)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--al-color-blue)' }}>
+              <Heart size={11} />
+              <span>STABLE</span>
             </div>
           </div>
 
-          {/* Stamina Bar */}
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontFamily: 'var(--font-mono)', marginBottom: '3px' }}>
-              <span>EXO STAMINA</span>
-              <span>{Math.round(player.stamina)}%</span>
+          <div className="al-hud-gauge-group">
+            {/* Suit Integrity (Cold Cyan) */}
+            <div>
+              <div className="al-hud-gauge-row">
+                <span style={{ color: 'var(--al-color-text-muted)' }}>SUIT INTEGRITY</span>
+                <span style={{ color: 'var(--al-color-blue)', fontWeight: 700 }}>{player.health || 100}%</span>
+              </div>
+              <div className="al-hud-gauge-bar">
+                <div
+                  className="al-hud-gauge-fill-cyan"
+                  style={{ width: `${player.health || 100}%` }}
+                />
+              </div>
             </div>
-            <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${player.stamina}%`, height: '100%', background: 'var(--accent-blue)', transition: 'width 0.1s linear' }} />
+
+            {/* Exo-Stamina (Emergency Orange / Danger) */}
+            <div>
+              <div className="al-hud-gauge-row">
+                <span style={{ color: 'var(--al-color-text-muted)' }}>EXO STAMINA</span>
+                <span style={{ color: 'var(--al-color-orange)', fontWeight: 700 }}>
+                  {Math.round(player.stamina)}%
+                </span>
+              </div>
+              <div className="al-hud-gauge-bar">
+                <div
+                  className="al-hud-gauge-fill-stamina"
+                  style={{ width: `${player.stamina}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right: Supplies Inventory */}
-        <div className="sci-panel" style={{ padding: '14px 22px', display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent-green)' }} />
-            <div style={{ fontFamily: 'var(--font-mono)' }}>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>MEDKITS</div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff' }}>{supplies.medkits}</div>
+        {/* Bottom-Right: Field Supplies Inventory */}
+        <div className="al-hud-panel al-hud-inventory">
+          {/* Medkits (Cold Cyan) */}
+          <div className="al-hud-inv-slot">
+            <div
+              className="al-hud-inv-dot"
+              style={{
+                background: supplies.medkits > 0 ? 'var(--al-color-blue)' : 'var(--al-color-red)',
+                boxShadow: supplies.medkits > 0 ? '0 0 6px var(--al-color-blue)' : 'none'
+              }}
+            />
+            <div>
+              <div className="al-hud-inv-label">MEDKITS</div>
+              <div
+                className="al-hud-inv-count"
+                style={{ color: supplies.medkits > 0 ? 'var(--al-color-text)' : 'var(--al-color-red)' }}
+              >
+                {supplies.medkits}
+              </div>
             </div>
           </div>
 
-          <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+          <div className="al-hud-inv-divider" />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent-blue)' }} />
-            <div style={{ fontFamily: 'var(--font-mono)' }}>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>O2 CELLS</div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff' }}>{supplies.oxygen}</div>
+          {/* O2 Cells (Cold Cyan) */}
+          <div className="al-hud-inv-slot">
+            <div
+              className="al-hud-inv-dot"
+              style={{
+                background: supplies.oxygen > 0 ? 'var(--al-color-blue)' : 'var(--al-color-red)',
+                boxShadow: supplies.oxygen > 0 ? '0 0 6px var(--al-color-blue)' : 'none'
+              }}
+            />
+            <div>
+              <div className="al-hud-inv-label">O2 CELLS</div>
+              <div
+                className="al-hud-inv-count"
+                style={{ color: supplies.oxygen > 0 ? 'var(--al-color-text)' : 'var(--al-color-red)' }}
+              >
+                {supplies.oxygen}
+              </div>
             </div>
           </div>
 
-          <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+          <div className="al-hud-inv-divider" />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent-amber)' }} />
-            <div style={{ fontFamily: 'var(--font-mono)' }}>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>TOOLKITS</div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: '#fff' }}>{supplies.toolkits}</div>
+          {/* Toolkits (Emergency Orange) */}
+          <div className="al-hud-inv-slot">
+            <div
+              className="al-hud-inv-dot"
+              style={{
+                background: supplies.toolkits > 0 ? 'var(--al-color-orange)' : 'var(--al-color-red)',
+                boxShadow: supplies.toolkits > 0 ? '0 0 6px var(--al-color-orange)' : 'none'
+              }}
+            />
+            <div>
+              <div className="al-hud-inv-label">TOOLKITS</div>
+              <div
+                className="al-hud-inv-count"
+                style={{ color: supplies.toolkits > 0 ? 'var(--al-color-text)' : 'var(--al-color-red)' }}
+              >
+                {supplies.toolkits}
+              </div>
             </div>
           </div>
         </div>
@@ -275,4 +332,3 @@ export default function HUD() {
     </div>
   );
 }
-
