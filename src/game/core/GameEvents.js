@@ -49,3 +49,4 @@ export const EVENT_TYPES = {
   GAME_RESUMED: 'GAME_RESUMED',
   GAME_OVER: 'GAME_OVER'
 };
+

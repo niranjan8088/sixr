@@ -8,3 +8,4 @@ export default function Button({ children, onClick, variant = 'primary', classNa
     </button>
   );
 }
+

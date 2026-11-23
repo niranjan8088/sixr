@@ -102,3 +102,4 @@ export class CollisionManager {
 
 // Global collision instance for the game
 export const globalCollisions = new CollisionManager();
+

@@ -64,3 +64,4 @@ export class GameControllerClass {
 }
 
 export const GameController = new GameControllerClass();
+

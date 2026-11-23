@@ -26,3 +26,4 @@ export const INTERACTION_DISTANCES = {
   SURVIVOR: 3.5,
   EXTRACTION: 5.0
 };
+

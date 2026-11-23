@@ -16,3 +16,4 @@ export const rescueSystem = {
     return store.performRescue(survivorId, supplyType);
   }
 };
+

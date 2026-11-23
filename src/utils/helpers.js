@@ -42,3 +42,4 @@ export function calculateRank(score) {
   if (score >= 450) return 'C';
   return 'D';
 }
+

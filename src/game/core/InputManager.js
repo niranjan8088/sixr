@@ -166,3 +166,4 @@ export class InputManager {
 }
 
 export const globalInput = new InputManager();
+

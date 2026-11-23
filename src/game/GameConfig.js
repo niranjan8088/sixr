@@ -97,3 +97,4 @@ export const GameConfig = {
     cleanRescueBonus: 100
   }
 };
+

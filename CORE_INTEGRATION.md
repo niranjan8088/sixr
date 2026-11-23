@@ -131,3 +131,4 @@ All modules read and update state through `src/store/gameStore.js`.
 | **MOUSE** | Rotate 3rd-person camera orbit |
 | **E** | Contextual Interaction (Triage survivor / Call evac) |
 | **ESC** | Pause / Resume operation or close modal |
+
