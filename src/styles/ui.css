@@ -1511,3 +1511,444 @@
     justify-content: center;
   }
 }
+
+/* -----------------------------------------------------------------------------
+   13. COMPASS & HUD EXTENSIONS
+   ----------------------------------------------------------------------------- */
+.al-hud-compass-bar {
+  position: relative;
+  width: 240px;
+  height: 28px;
+  overflow: hidden;
+  border-left: 1px solid rgba(255, 107, 36, 0.35);
+  border-right: 1px solid rgba(255, 107, 36, 0.35);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.6) 0%, rgba(17, 22, 27, 0.85) 20%, rgba(17, 22, 27, 0.85) 80%, rgba(0, 0, 0, 0.6) 100%);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.al-hud-compass-marker {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid var(--al-color-orange);
+  z-index: 2;
+}
+
+.al-hud-pause-btn {
+  background: rgba(17, 22, 27, 0.85);
+  border: 1px solid rgba(241, 241, 237, 0.15);
+  color: var(--al-color-text);
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  padding: 6px 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--al-transition-fast);
+}
+
+.al-hud-pause-btn:hover {
+  background: rgba(26, 34, 42, 0.95);
+  border-color: var(--al-color-orange);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.al-hud-pause-btn:focus-visible {
+  outline: 2px solid var(--al-color-orange);
+}
+
+/* -----------------------------------------------------------------------------
+   14. RESCUE & TRIAGE PANEL
+   ----------------------------------------------------------------------------- */
+.al-rescue-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 6, 8, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 120;
+  padding: 24px;
+  pointer-events: auto;
+}
+
+.al-rescue-card {
+  max-width: 580px;
+  width: 100%;
+  padding: 30px 34px;
+  background: var(--al-color-panel);
+  border: 1px solid var(--al-border-accent);
+  box-shadow: var(--al-shadow-panel), var(--al-shadow-glow-orange);
+  border-radius: 3px;
+  position: relative;
+}
+
+.al-rescue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(241, 241, 237, 0.08);
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+}
+
+.al-rescue-name {
+  font-family: var(--al-font-brand);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #fff;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.al-rescue-role {
+  font-family: var(--al-font-mono);
+  font-size: 12px;
+  color: var(--al-color-blue);
+  letter-spacing: 1px;
+}
+
+.al-rescue-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--al-color-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  transition: color var(--al-transition-fast);
+}
+
+.al-rescue-close-btn:hover {
+  color: #fff;
+}
+
+.al-rescue-intel-block {
+  background: rgba(0, 0, 0, 0.45);
+  border-left: 3px solid var(--al-color-orange);
+  padding: 14px 18px;
+  border-radius: 2px;
+  margin-bottom: 18px;
+}
+
+.al-rescue-supplies-bar {
+  background: rgba(241, 241, 237, 0.03);
+  border: 1px solid var(--al-border-subtle);
+  padding: 12px 18px;
+  border-radius: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.al-rescue-decision-card {
+  background: rgba(241, 241, 237, 0.03);
+  border: 1px solid rgba(241, 241, 237, 0.1);
+  padding: 12px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--al-transition-fast);
+}
+
+.al-rescue-decision-card:hover {
+  background: rgba(241, 241, 237, 0.07);
+  border-color: rgba(255, 107, 36, 0.5);
+}
+
+.al-rescue-card-selected {
+  background: rgba(255, 107, 36, 0.12) !important;
+  border-color: var(--al-color-orange) !important;
+  box-shadow: 0 0 16px rgba(255, 107, 36, 0.25);
+}
+
+.al-rescue-card-disabled {
+  opacity: 0.45;
+  cursor: not-allowed !important;
+}
+
+/* -----------------------------------------------------------------------------
+   15. PAUSE SCREEN OVERLAY
+   ----------------------------------------------------------------------------- */
+.al-pause-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(5, 7, 10, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+  pointer-events: auto;
+}
+
+.al-pause-card {
+  max-width: 460px;
+  width: 100%;
+  padding: 32px 36px;
+  background: var(--al-color-panel);
+  border: 1px solid var(--al-border-accent);
+  box-shadow: var(--al-shadow-panel), var(--al-shadow-glow-orange);
+  border-radius: 3px;
+}
+
+.al-pause-title {
+  font-family: var(--al-font-brand);
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: #fff;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.al-pause-snapshot {
+  background: rgba(8, 10, 12, 0.5);
+  border: 1px solid rgba(241, 241, 237, 0.08);
+  border-radius: 3px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.al-pause-stat {
+  text-align: center;
+}
+
+.al-pause-footer-hint {
+  text-align: center;
+  font-family: var(--al-font-mono);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--al-color-text-dim);
+  border-top: 1px solid rgba(241, 241, 237, 0.06);
+  padding-top: 14px;
+}
+
+/* -----------------------------------------------------------------------------
+   16. RESULTS / DEBRIEF SCREEN
+   ----------------------------------------------------------------------------- */
+.al-results-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, rgba(17, 22, 27, 0.94) 0%, rgba(6, 8, 10, 0.98) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+  pointer-events: auto;
+}
+
+.al-results-card {
+  max-width: 660px;
+  width: 100%;
+  padding: 36px 42px;
+  background: var(--al-color-panel);
+  border-radius: 3px;
+}
+
+.al-results-card-success {
+  border: 1px solid rgba(130, 200, 233, 0.45);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 24px rgba(130, 200, 233, 0.2);
+}
+
+.al-results-title {
+  font-family: var(--al-font-brand);
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #fff;
+  text-transform: uppercase;
+  margin: 4px 0 2px;
+}
+
+.al-results-rank-banner {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(241, 241, 237, 0.08);
+  border-radius: 3px;
+  padding: 16px 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 36px;
+  margin-bottom: 22px;
+}
+
+.al-results-rank-grade {
+  font-family: var(--al-font-brand);
+  font-size: 60px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.al-results-score-val {
+  font-family: var(--al-font-mono);
+  font-size: 32px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.al-results-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* -----------------------------------------------------------------------------
+   17. SETTINGS SCREEN
+   ----------------------------------------------------------------------------- */
+.al-settings-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 6, 8, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 150;
+  padding: 24px;
+  pointer-events: auto;
+}
+
+.al-settings-card {
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 34px;
+  border-radius: 3px;
+}
+
+.al-settings-title {
+  font-family: var(--al-font-brand);
+  font-size: 24px;
+  letter-spacing: 2px;
+  color: #fff;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.al-settings-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.al-settings-group {
+  background: rgba(8, 10, 12, 0.4);
+  border: 1px solid rgba(241, 241, 237, 0.06);
+  padding: 14px 18px;
+  border-radius: 3px;
+}
+
+.al-settings-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.al-settings-toggle-btn {
+  background: rgba(241, 241, 237, 0.04);
+  border: 1px solid var(--al-border-subtle);
+  border-radius: 2px;
+  padding: 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  color: var(--al-color-text);
+  transition: all var(--al-transition-fast);
+}
+
+.al-settings-toggle-btn:hover {
+  background: rgba(241, 241, 237, 0.08);
+}
+
+.al-settings-slider-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--al-font-body);
+  font-size: 12px;
+  color: var(--al-color-text);
+  margin-bottom: 6px;
+}
+
+.al-settings-slider {
+  width: 100%;
+  accent-color: var(--al-color-orange);
+  cursor: pointer;
+}
+
+.al-settings-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.al-settings-preset-btn {
+  padding: 8px;
+  background: rgba(241, 241, 237, 0.03);
+  border: 1px solid var(--al-border-subtle);
+  color: var(--al-color-text-muted);
+  font-family: var(--al-font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all var(--al-transition-fast);
+}
+
+.al-settings-preset-btn:hover {
+  background: rgba(241, 241, 237, 0.08);
+  color: #fff;
+}
+
+.al-settings-preset-active {
+  background: rgba(255, 107, 36, 0.2) !important;
+  border-color: var(--al-color-orange) !important;
+  color: #fff !important;
+}

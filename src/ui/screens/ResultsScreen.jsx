@@ -1,127 +1,179 @@
 import React from 'react';
+import '../../styles/ui.css';
 import { useGameStore } from '../../store/gameStore';
-import Button from '../common/Button';
-import { Award, RotateCcw, Home, CheckCircle2, XCircle, Clock, PackageCheck } from 'lucide-react';
-import { formatTime } from '../../utils/helpers';
+import Button from '../components/Button';
+import StatItem from '../components/StatItem';
+import AnimatedCounter from '../components/AnimatedCounter';
+import {
+  Award,
+  RotateCcw,
+  Home,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Users,
+  Package,
+  Shield
+} from 'lucide-react';
 
-export default function ResultsScreen() {
-  const score = useGameStore((state) => state.score);
-  const mission = useGameStore((state) => state.mission);
-  const restartMission = useGameStore((state) => state.restartMission);
+/**
+ * AFTERLIGHT — Cinematic Mission Debrief & Results Screen
+ * Operates with props or falls back automatically to useGameStore.
+ */
+export default function ResultsScreen({
+  scoreData = null,
+  onReplay = null,
+  onMainMenu = null
+}) {
+  const storeScore = useGameStore((state) => state.score);
+  const storeMission = useGameStore((state) => state.mission);
+  const storeRestart = useGameStore((state) => state.restartMission);
+  const storeSetPhase = useGameStore((state) => state.setPhase);
 
-  const isSuccess = score.success;
+  // Resolution: props take precedence, fallback to store, fallback to defaults
+  const data = scoreData || {
+    success: storeScore?.success !== undefined ? storeScore.success : true,
+    totalPoints: storeScore?.totalPoints || 1200,
+    rank: storeScore?.rank || 'S',
+    survivorsSaved: storeMission?.survivorsRescued !== undefined ? storeMission.survivorsRescued : 3,
+    totalSurvivors: storeMission?.totalSurvivors || 3,
+    elapsedSeconds: Math.floor(storeMission?.elapsed || 180),
+    timeRemainingBonus: storeScore?.timeRemainingBonus || 150,
+    suppliesBonus: storeScore?.suppliesBonus || 100
+  };
+
+  const isSuccess = data.success !== false;
+  const rank = data.rank || 'S';
+
+  const handleReplay = () => {
+    if (typeof onReplay === 'function') {
+      onReplay();
+    } else {
+      storeRestart();
+    }
+  };
+
+  const handleMainMenu = () => {
+    if (typeof onMainMenu === 'function') {
+      onMainMenu();
+    } else {
+      storeRestart();
+      storeSetPhase('MENU');
+    }
+  };
+
+  const formatElapsed = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   return (
-    <div style={{
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'rgba(5, 7, 10, 0.94)',
-      padding: '24px'
-    }}>
-      <div className="sci-panel interactive" style={{
-        maxWidth: '640px',
-        width: '100%',
-        padding: '36px',
-        border: `1px solid ${isSuccess ? 'rgba(0, 255, 170, 0.45)' : 'rgba(255, 60, 60, 0.45)'}`,
-        boxShadow: `0 12px 48px rgba(0, 0, 0, 0.8), 0 0 24px ${isSuccess ? 'rgba(0, 255, 170, 0.2)' : 'rgba(255, 60, 60, 0.2)'}`
-      }}>
-        {/* Status Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+    <div className="al-results-overlay" role="region" aria-labelledby="results-title">
+      <div className={`al-panel al-results-card ${isSuccess ? 'al-results-card-success' : 'al-panel-danger'} al-animate-fade-in`}>
+        {/* Mission Status Header */}
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
-            color: isSuccess ? 'var(--accent-green)' : 'var(--accent-red)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '13px',
-            letterSpacing: '2px',
-            fontWeight: 700,
-            marginBottom: '8px'
+            fontFamily: 'var(--al-font-mono)',
+            fontSize: '12px',
+            fontWeight: 800,
+            letterSpacing: '2.5px',
+            color: isSuccess ? 'var(--al-color-blue)' : 'var(--al-color-red)',
+            marginBottom: '6px',
+            textTransform: 'uppercase'
           }}>
-            {isSuccess ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
-            {isSuccess ? 'EVACUATION SUCCESSFUL' : 'MISSION FAILED: TIMEOUT'}
+            {isSuccess ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+            {isSuccess ? 'EVACUATION SUCCESSFUL // EXTRACTION COMPLETE' : 'MISSION FAILED // CASUALTY TIMEOUT'}
           </div>
 
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '38px', color: '#fff' }}>
+          <h1 id="results-title" className="al-results-title">
             AFTER THE COLLAPSE
           </h1>
+          <div style={{ fontFamily: 'var(--al-font-mono)', fontSize: '11px', color: 'var(--al-color-text-dim)', letterSpacing: '2px' }}>
+            SECTOR 4-B TACTICAL DEBRIEF // OP: CITADEL EMBERS
+          </div>
         </div>
 
-        {/* Big Rank Badge */}
+        {/* Tactical Performance Rating & Rank Badge */}
+        <div className="al-results-rank-banner">
+          <div style={{ textAlign: 'center' }}>
+            <div className="al-hud-label" style={{ marginBottom: '2px' }}>TACTICAL RATING</div>
+            <div className={`al-results-rank-grade ${isSuccess ? 'al-text-orange' : 'al-text-danger'}`}>
+              {rank}
+            </div>
+          </div>
+
+          <div style={{ width: '1px', height: '64px', background: 'rgba(241, 241, 237, 0.1)' }} />
+
+          <div style={{ textAlign: 'center' }}>
+            <div className="al-hud-label" style={{ marginBottom: '4px' }}>FINAL OPERATIONAL SCORE</div>
+            <div className="al-results-score-val">
+              <AnimatedCounter value={data.totalPoints || 0} suffix=" PTS" />
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Grid Breakdown */}
+        <div className="al-results-stats-grid">
+          <StatItem
+            label="Survivors Stabilized"
+            value={`${data.survivorsSaved || 0} / ${data.totalSurvivors || 3}`}
+            icon={Users}
+            accentColor="blue"
+          />
+
+          <StatItem
+            label="Mission Duration"
+            value={formatElapsed(data.elapsedSeconds || 180)}
+            icon={Clock}
+            accentColor="text"
+          />
+
+          <StatItem
+            label="Time Bonus"
+            value={`+${data.timeRemainingBonus || 0} PTS`}
+            icon={Shield}
+            accentColor="blue"
+          />
+
+          <StatItem
+            label="Supplies Conserved"
+            value={`+${data.suppliesBonus || 0} PTS`}
+            icon={Package}
+            accentColor="orange"
+          />
+        </div>
+
+        {/* Action Button Navigation */}
         <div style={{
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '24px',
-          background: 'rgba(255, 255, 255, 0.03)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          borderRadius: '4px',
-          padding: '20px',
-          marginBottom: '24px'
+          justifyContent: 'space-between',
+          gap: '14px',
+          borderTop: '1px solid rgba(241, 241, 237, 0.08)',
+          paddingTop: '20px'
         }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>PERFORMANCE RATING</div>
-            <div style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '56px',
-              fontWeight: 700,
-              color: score.rank === 'S' ? 'var(--accent-amber)' : isSuccess ? 'var(--accent-green)' : 'var(--accent-red)',
-              lineHeight: '1'
-            }}>
-              {score.rank}
-            </div>
-          </div>
+          <Button
+            variant="secondary"
+            onClick={handleMainMenu}
+            icon={Home}
+            style={{ flex: 1 }}
+          >
+            RETURN TO HQ
+          </Button>
 
-          <div style={{ width: '1px', height: '60px', background: 'rgba(255, 255, 255, 0.1)' }} />
-
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>FINAL TACTICAL SCORE</div>
-            <div style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '36px',
-              fontWeight: 700,
-              color: '#fff',
-              lineHeight: '1.2'
-            }}>
-              {score.totalPoints} PTS
-            </div>
-          </div>
-        </div>
-
-        {/* Stats Breakdown */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '28px', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
-          <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '4px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '11px' }}>SURVIVORS STABILIZED:</div>
-            <div style={{ color: '#fff', fontSize: '16px', fontWeight: 600 }}>{mission.survivorsRescued} / {mission.totalSurvivors}</div>
-          </div>
-
-          <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '4px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '11px' }}>TIME REMAINING:</div>
-            <div style={{ color: '#fff', fontSize: '16px', fontWeight: 600 }}>{formatTime(mission.timer)}</div>
-          </div>
-
-          <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '4px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '11px' }}>TIME BONUS:</div>
-            <div style={{ color: 'var(--accent-blue)', fontSize: '16px', fontWeight: 600 }}>+{score.timeRemainingBonus} PTS</div>
-          </div>
-
-          <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px', borderRadius: '4px' }}>
-            <div style={{ color: 'var(--text-muted)', fontSize: '11px' }}>CONSERVED SUPPLIES:</div>
-            <div style={{ color: 'var(--accent-green)', fontSize: '16px', fontWeight: 600 }}>+{score.suppliesBonus} PTS</div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div style={{ display: 'flex', gap: '14px' }}>
-          <Button onClick={restartMission} style={{ flex: 1, padding: '14px' }}>
-            <RotateCcw size={16} /> RETURN TO BASE
+          <Button
+            variant="primary"
+            onClick={handleReplay}
+            icon={RotateCcw}
+            style={{ flex: 1 }}
+          >
+            REDEPLOY OPERATION
           </Button>
         </div>
       </div>
     </div>
   );
 }
-
