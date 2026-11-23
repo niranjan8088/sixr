@@ -150,6 +150,13 @@ export default function Buildings() {
                     <boxGeometry args={[1.6, 2.4, 0.1]} />
                     <meshStandardMaterial color="#1a2530" roughness={0.25} metalness={0.7} />
                   </mesh>
+                  {/* Neoclassical Arched Pediment Header (Image 2) */}
+                  {fIdx <= 2 && (
+                    <mesh position={[0, 1.35, 0.1]}>
+                      <boxGeometry args={[1.8, 0.25, 0.22]} />
+                      <meshStandardMaterial color={b.corniceColor} roughness={0.7} />
+                    </mesh>
+                  )}
                   {/* Limestone Window Sill */}
                   <mesh position={[0, -1.25, 0.1]}>
                     <boxGeometry args={[1.9, 0.2, 0.25]} />
@@ -157,6 +164,21 @@ export default function Buildings() {
                   </mesh>
                 </group>
               ))
+            )}
+
+            {/* Storefront Green Fabric Awning Canopy (Image 2 Melvin Rice Corner Building) */}
+            {b.id === 'b-w1' && (
+              <group position={[0, -halfH + 3.4, depth / 2 + 1.1]} rotation={[0.24, 0, 0]}>
+                <mesh castShadow receiveShadow>
+                  <boxGeometry args={[width * 0.75, 0.1, 2.2]} />
+                  <meshStandardMaterial color="#14532d" roughness={0.85} />
+                </mesh>
+                {/* Awning Front Drop Valance */}
+                <mesh position={[0, -0.18, 1.1]}>
+                  <boxGeometry args={[width * 0.75, 0.36, 0.06]} />
+                  <meshStandardMaterial color="#166534" roughness={0.8} />
+                </mesh>
+              </group>
             )}
 
             {/* Overgrown Green Ivy / Climbing Vines on Facade (Like in Image 1 & 2!) */}

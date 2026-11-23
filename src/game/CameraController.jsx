@@ -10,9 +10,9 @@ export default function CameraController() {
 
   // Camera state refs
   const yaw = useRef(0);
-  const pitch = useRef(0.12);
-  const currentPos = useRef(new THREE.Vector3(0, 3.2, 22));
-  const currentLookAt = useRef(new THREE.Vector3(0.2, 1.35, 18));
+  const pitch = useRef(0.08); // Slight downward angle showing player and road ahead
+  const currentPos = useRef(new THREE.Vector3(0, 3.0, 20));
+  const currentLookAt = useRef(new THREE.Vector3(0.15, 1.3, 16));
   const isPointerLocked = useRef(false);
 
   const playerPosition = useGameStore((state) => state.player.position);
@@ -24,8 +24,8 @@ export default function CameraController() {
   useEffect(() => {
     if (phase === 'MENU' || phase === 'BRIEFING') {
       yaw.current = 0;
-      pitch.current = 0.12;
-      setCameraRotation(0, 0.12);
+      pitch.current = 0.08;
+      setCameraRotation(0, 0.08);
     }
   }, [phase, setCameraRotation]);
 
@@ -54,8 +54,8 @@ export default function CameraController() {
     document.addEventListener('pointerlockchange', handlePointerLockChange);
 
     // Initial camera placement
-    camera.position.set(playerPosition[0] + 0.35, playerPosition[1] + 1.9, playerPosition[2] + 3.4);
-    camera.lookAt(playerPosition[0] + 0.2, playerPosition[1] + 1.35, playerPosition[2]);
+    camera.position.set(playerPosition[0] + 0.32, playerPosition[1] + 1.6, playerPosition[2] + 2.8);
+    camera.lookAt(playerPosition[0] + 0.15, playerPosition[1] + 1.3, playerPosition[2]);
 
     return () => {
       domElement.removeEventListener('click', handleCanvasClick);
@@ -79,11 +79,11 @@ export default function CameraController() {
       yaw.current -= dx * GameConfig.camera.mouseSensitivity;
       pitch.current += dy * GameConfig.camera.mouseSensitivity;
 
-      // Clamp pitch to avoid ground clipping or zenith flip
+      // Clamp pitch for natural third-person gameplay
       pitch.current = THREE.MathUtils.clamp(
         pitch.current,
-        -0.4,
-        0.8
+        -0.35,
+        0.75
       );
 
       // Normalize yaw
@@ -93,16 +93,16 @@ export default function CameraController() {
       setCameraRotation(yaw.current, pitch.current);
     }
 
-    // Over-The-Shoulder Camera Framing (Matched directly with Reference Image 4)
+    // Close Third-Person Over-The-Shoulder Camera Framing (Exact Match to User Reference Image 4)
     const targetPlayerPos = new THREE.Vector3(
       playerPosition[0],
       playerPosition[1],
       playerPosition[2]
     );
 
-    const camDistance = 3.3; // Action survival over-the-shoulder distance
-    const camHeight = 1.75;
-    const shoulderOffset = 0.38; // Right shoulder offset
+    const camDistance = 2.8; // Close, cinematic survival distance showing backpack & road
+    const camHeight = 1.62;
+    const shoulderOffset = 0.32; // Over the right shoulder
 
     const cosPitch = Math.cos(pitch.current);
     const sinPitch = Math.sin(pitch.current);
@@ -113,17 +113,17 @@ export default function CameraController() {
     const rightX = cosYaw;
     const rightZ = -sinYaw;
 
-    // Camera 3D coordinates
+    // Target Camera 3D coordinates
     const targetCamX = targetPlayerPos.x + sinYaw * cosPitch * camDistance + rightX * shoulderOffset;
     const targetCamY = Math.max(0.65, targetPlayerPos.y + camHeight + sinPitch * camDistance);
     const targetCamZ = targetPlayerPos.z + cosYaw * cosPitch * camDistance + rightZ * shoulderOffset;
 
-    // Look-At Target (Upper spine / head level with shoulder framing)
-    const targetLookX = targetPlayerPos.x + rightX * (shoulderOffset * 0.3);
-    const targetLookY = targetPlayerPos.y + 1.35;
-    const targetLookZ = targetPlayerPos.z + rightZ * (shoulderOffset * 0.3);
+    // Look-At Target (Upper back / neck center with subtle right offset)
+    const targetLookX = targetPlayerPos.x + rightX * (shoulderOffset * 0.25);
+    const targetLookY = targetPlayerPos.y + 1.32;
+    const targetLookZ = targetPlayerPos.z + rightZ * (shoulderOffset * 0.25);
 
-    // Smooth cinematic damping
+    // Smooth cinematic tracking
     currentPos.current.lerp(new THREE.Vector3(targetCamX, targetCamY, targetCamZ), 14 * dt);
     currentLookAt.current.lerp(new THREE.Vector3(targetLookX, targetLookY, targetLookZ), 18 * dt);
 

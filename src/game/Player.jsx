@@ -15,6 +15,7 @@ export default function Player() {
   const leftArmRef = useRef();
   const rightArmRef = useRef();
   const headRef = useRef();
+  const backpackRef = useRef();
 
   const phase = useGameStore((state) => state.phase);
   const activeRescueSurvivor = useGameStore((state) => state.activeRescueSurvivor);
@@ -123,16 +124,19 @@ export default function Player() {
     // Procedural Walking/Running Animation
     if (isMoving) {
       animTime.current += dt * (isSprinting ? 14 : 9);
-      const swing = Math.sin(animTime.current) * (isSprinting ? 0.75 : 0.45);
-      const bob = Math.abs(Math.sin(animTime.current * 2)) * (isSprinting ? 0.08 : 0.04);
+      const swing = Math.sin(animTime.current) * (isSprinting ? 0.72 : 0.42);
+      const bob = Math.abs(Math.sin(animTime.current * 2)) * (isSprinting ? 0.07 : 0.035);
 
       if (leftLegRef.current) leftLegRef.current.rotation.x = swing;
       if (rightLegRef.current) rightLegRef.current.rotation.x = -swing;
-      if (leftArmRef.current) leftArmRef.current.rotation.x = -swing * 0.9;
-      if (rightArmRef.current) rightArmRef.current.rotation.x = swing * 0.9;
+      if (leftArmRef.current) leftArmRef.current.rotation.x = -swing * 0.85;
+      if (rightArmRef.current) rightArmRef.current.rotation.x = swing * 0.85;
       if (bodyRef.current) {
         bodyRef.current.position.y = 1.05 + bob;
-        bodyRef.current.rotation.x = isSprinting ? 0.15 : 0.04;
+        bodyRef.current.rotation.x = isSprinting ? 0.14 : 0.04;
+      }
+      if (backpackRef.current) {
+        backpackRef.current.rotation.z = Math.sin(animTime.current) * 0.03;
       }
     } else {
       // Idle return to rest
@@ -159,124 +163,173 @@ export default function Player() {
     <group ref={groupRef}>
       {/* Soft Ground Contact Shadow */}
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[0, 0.65, 24]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.45} />
+        <ringGeometry args={[0, 0.62, 24]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.4} />
       </mesh>
 
       {/* Main Body Hierarchy */}
       <group ref={bodyRef} position={[0, 1.05, 0]}>
-        {/* 1. Torso: Tactical Field Shirt & Harness (Modeled from User Image 4) */}
+        {/* 1. Torso: Olive Survival Field Shirt (Matched directly to User Reference Image 4) */}
         <mesh castShadow receiveShadow position={[0, 0, 0]}>
-          <boxGeometry args={[0.54, 0.68, 0.32]} />
-          <meshStandardMaterial color="#424c3a" roughness={0.7} metalness={0.1} />
+          <boxGeometry args={[0.52, 0.68, 0.3]} />
+          <meshStandardMaterial color="#464e3c" roughness={0.78} metalness={0.08} />
         </mesh>
 
-        {/* Tactical Chest Harness / Utility Straps */}
-        <mesh position={[0, 0.04, 0.165]}>
-          <boxGeometry args={[0.46, 0.48, 0.04]} />
-          <meshStandardMaterial color="#2d3027" roughness={0.8} />
+        {/* Tactical Chest Harness / Utility Straps across chest */}
+        <mesh position={[0, 0.05, 0.155]}>
+          <boxGeometry args={[0.44, 0.44, 0.025]} />
+          <meshStandardMaterial color="#2d3027" roughness={0.85} />
         </mesh>
 
-        {/* High-Vis Orange Collar & Rescue Trim */}
-        <mesh position={[0, 0.28, 0]}>
-          <boxGeometry args={[0.32, 0.12, 0.3]} />
-          <meshStandardMaterial color="#d45019" roughness={0.6} />
+        {/* Subdued Rescue Orange Shoulder Patch */}
+        <mesh position={[0.265, 0.2, 0]}>
+          <boxGeometry args={[0.015, 0.12, 0.12]} />
+          <meshStandardMaterial color="#c24817" roughness={0.6} />
         </mesh>
 
-        {/* ================================================================
-            2. EXPEDITION SURVIVAL BACKPACK (Modeled directly from Image 4!)
-            Large olive military backpack with rolled bottom sleeping tarp
-           ================================================================ */}
-        <group position={[0, 0.02, -0.25]}>
-          {/* Main Olive Expedition Pack */}
-          <mesh castShadow receiveShadow position={[0, 0.08, 0]}>
-            <boxGeometry args={[0.44, 0.58, 0.24]} />
-            <meshStandardMaterial color="#505a45" roughness={0.8} metalness={0.1} />
+        {/* =================================================================
+            2. REALISTIC EXPEDITION BACKPACK (Direct match to User Image 4)
+            Large olive survival rucksack, webbing, rolled bedroll at bottom
+           ================================================================= */}
+        <group ref={backpackRef} position={[0, 0.04, -0.25]}>
+          {/* Main Heavy Pack Body */}
+          <mesh castShadow receiveShadow position={[0, 0.06, 0]}>
+            <boxGeometry args={[0.46, 0.58, 0.25]} />
+            <meshStandardMaterial color="#555e4b" roughness={0.82} metalness={0.06} />
           </mesh>
 
-          {/* Backpack Flap / Pouch */}
-          <mesh position={[0, 0.25, -0.06]}>
-            <boxGeometry args={[0.38, 0.18, 0.16]} />
-            <meshStandardMaterial color="#414937" roughness={0.85} />
+          {/* Top Flap Pouch */}
+          <mesh position={[0, 0.26, -0.05]}>
+            <boxGeometry args={[0.42, 0.18, 0.18]} />
+            <meshStandardMaterial color="#444b3c" roughness={0.85} />
           </mesh>
 
-          {/* Vertical Compression Webbing Straps */}
-          {[-0.12, 0.12].map((x) => (
-            <mesh key={`strap-${x}`} position={[x, 0.08, -0.125]}>
-              <boxGeometry args={[0.035, 0.54, 0.015]} />
-              <meshStandardMaterial color="#282a24" />
+          {/* Compression Straps (Vertical Webbing) */}
+          {[-0.13, 0.13].map((x) => (
+            <mesh key={`b-strap-${x}`} position={[x, 0.06, -0.13]}>
+              <boxGeometry args={[0.032, 0.54, 0.015]} />
+              <meshStandardMaterial color="#282a24" roughness={0.9} />
             </mesh>
           ))}
 
-          {/* Rolled Survival Bedroll / Tarp Strapped at Bottom (Just like in Image 4!) */}
-          <mesh position={[0, -0.28, -0.04]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.1, 0.1, 0.48, 14]} />
-            <meshStandardMaterial color="#363d30" roughness={0.85} />
+          {/* Metal D-Rings & Carabiner Clip (Just like in Image 4!) */}
+          <mesh position={[0.13, 0.18, -0.14]}>
+            <torusGeometry args={[0.035, 0.008, 8, 14]} />
+            <meshStandardMaterial color="#d8e0e8" roughness={0.2} metalness={0.95} />
           </mesh>
 
-          {/* Side Canteen / Radio Attachment */}
-          <mesh position={[0.24, 0.05, 0]}>
-            <boxGeometry args={[0.08, 0.24, 0.14]} />
-            <meshStandardMaterial color="#222620" />
+          {/* Dangling Brass / Leather Canteen Flask hanging from Carabiner (Image 4) */}
+          <mesh position={[0.14, 0.08, -0.16]} rotation={[0.1, 0, 0.2]}>
+            <cylinderGeometry args={[0.04, 0.04, 0.14, 10]} />
+            <meshStandardMaterial color="#78553a" roughness={0.7} metalness={0.2} />
           </mesh>
+
+          {/* Emergency Hatchet / Radio Antenna Poking Up Behind Shoulder (Image 4) */}
+          <group position={[-0.14, 0.38, -0.06]} rotation={[0.12, 0, -0.15]}>
+            {/* Wooden Handle */}
+            <mesh position={[0, 0, 0]}>
+              <cylinderGeometry args={[0.016, 0.018, 0.38, 8]} />
+              <meshStandardMaterial color="#854d0e" roughness={0.8} />
+            </mesh>
+            {/* Dark Steel Axe Head */}
+            <mesh position={[0.04, 0.16, 0]}>
+              <boxGeometry args={[0.08, 0.07, 0.02]} />
+              <meshStandardMaterial color="#334155" metalness={0.9} />
+            </mesh>
+          </group>
+
+          {/* Side Utility Pouch / Water Flask */}
+          <mesh position={[0.25, 0.02, 0]}>
+            <cylinderGeometry args={[0.055, 0.055, 0.28, 10]} />
+            <meshStandardMaterial color="#2c3029" roughness={0.7} metalness={0.3} />
+          </mesh>
+
+          {/* ROLLED SLEEPING MAT / BEDROLL (Horizontally strapped to bottom of pack, exactly as in Image 4!) */}
+          <group position={[0, -0.28, -0.03]}>
+            <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
+              <cylinderGeometry args={[0.11, 0.11, 0.5, 16]} />
+              <meshStandardMaterial color="#3d4436" roughness={0.85} />
+            </mesh>
+            {/* Black Tie-Down Straps on Bedroll */}
+            {[-0.15, 0.15].map((x) => (
+              <mesh key={`roll-strap-${x}`} position={[x, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+                <torusGeometry args={[0.114, 0.012, 6, 16]} />
+                <meshStandardMaterial color="#181a17" roughness={0.9} />
+              </mesh>
+            ))}
+          </group>
         </group>
 
-        {/* 3. Head & Hair / Tactical Headband */}
+        {/* 3. Head & Natural Survivor Ponytail / Hair (Modeled from User Image 4) */}
         <group ref={headRef} position={[0, 0.48, 0]}>
-          {/* Head */}
+          {/* Natural Skin Tone Head */}
           <mesh castShadow position={[0, 0, 0]}>
-            <sphereGeometry args={[0.2, 18, 18]} />
-            <meshStandardMaterial color="#c7ab8f" roughness={0.6} />
+            <sphereGeometry args={[0.19, 18, 18]} />
+            <meshStandardMaterial color="#c5a282" roughness={0.65} />
           </mesh>
-          {/* Dark Hair (Pulled back survivor cut like Image 4) */}
+          {/* Dark Brown Textured Hair */}
           <mesh position={[0, 0.06, -0.04]}>
-            <sphereGeometry args={[0.21, 16, 16]} />
-            <meshStandardMaterial color="#241e1a" roughness={0.8} />
+            <sphereGeometry args={[0.2, 16, 16]} />
+            <meshStandardMaterial color="#261e18" roughness={0.85} />
           </mesh>
-          {/* Hair Bun / Tail */}
-          <mesh position={[0, 0.08, -0.2]}>
-            <sphereGeometry args={[0.08, 10, 10]} />
-            <meshStandardMaterial color="#241e1a" roughness={0.8} />
+          {/* Survivor Ponytail / Bun tied at back (Just like in Image 4!) */}
+          <mesh position={[0, 0.08, -0.19]} rotation={[0.4, 0, 0]}>
+            <cylinderGeometry args={[0.045, 0.07, 0.18, 10]} />
+            <meshStandardMaterial color="#261e18" roughness={0.85} />
           </mesh>
         </group>
 
-        {/* 4. Left Arm & Glove */}
+        {/* 4. Arms with Rolled Sleeves & Bare Forearms */}
+        {/* Left Arm */}
         <group ref={leftArmRef} position={[-0.34, 0.22, 0]}>
-          <mesh position={[0, -0.22, 0]}>
-            <boxGeometry args={[0.14, 0.46, 0.14]} />
-            <meshStandardMaterial color="#424c3a" roughness={0.7} />
+          {/* Olive Shirt Sleeve */}
+          <mesh position={[0, -0.1, 0]}>
+            <boxGeometry args={[0.14, 0.22, 0.14]} />
+            <meshStandardMaterial color="#464e3c" roughness={0.78} />
           </mesh>
-          {/* Tactical Rescue Glove */}
-          <mesh position={[0, -0.38, 0]}>
-            <boxGeometry args={[0.16, 0.16, 0.16]} />
-            <meshStandardMaterial color="#262b22" roughness={0.6} />
+          {/* Bare Forearm */}
+          <mesh position={[0, -0.28, 0]}>
+            <boxGeometry args={[0.12, 0.24, 0.12]} />
+            <meshStandardMaterial color="#c5a282" roughness={0.65} />
+          </mesh>
+          {/* Tactical Wristwatch on Left Wrist */}
+          <mesh position={[0, -0.36, 0]}>
+            <boxGeometry args={[0.13, 0.04, 0.13]} />
+            <meshStandardMaterial color="#1a1c18" roughness={0.5} metalness={0.7} />
           </mesh>
         </group>
 
-        {/* 5. Right Arm & Glove */}
+        {/* Right Arm */}
         <group ref={rightArmRef} position={[0.34, 0.22, 0]}>
-          <mesh position={[0, -0.22, 0]}>
-            <boxGeometry args={[0.14, 0.46, 0.14]} />
-            <meshStandardMaterial color="#424c3a" roughness={0.7} />
+          {/* Olive Shirt Sleeve */}
+          <mesh position={[0, -0.1, 0]}>
+            <boxGeometry args={[0.14, 0.22, 0.14]} />
+            <meshStandardMaterial color="#464e3c" roughness={0.78} />
           </mesh>
-          <mesh position={[0, -0.38, 0]}>
-            <boxGeometry args={[0.16, 0.16, 0.16]} />
-            <meshStandardMaterial color="#262b22" roughness={0.6} />
+          {/* Bare Forearm */}
+          <mesh position={[0, -0.28, 0]}>
+            <boxGeometry args={[0.12, 0.24, 0.12]} />
+            <meshStandardMaterial color="#c5a282" roughness={0.65} />
           </mesh>
         </group>
       </group>
 
-      {/* 6. Tactical Cargo Trousers & Heavy Boots */}
+      {/* 5. Realistic Survival Cargo Pants & Rugged Hiking Boots */}
       {/* Left Leg */}
       <group ref={leftLegRef} position={[-0.15, 0.65, 0]}>
         <mesh position={[0, -0.34, 0]}>
           <boxGeometry args={[0.17, 0.66, 0.19]} />
-          <meshStandardMaterial color="#38332c" roughness={0.8} />
+          <meshStandardMaterial color="#3a352c" roughness={0.82} />
         </mesh>
-        {/* Heavy Leather Hiking Boot */}
-        <mesh position={[0, -0.62, 0.05]}>
+        {/* Thigh Cargo Pocket */}
+        <mesh position={[-0.08, -0.2, 0]}>
+          <boxGeometry args={[0.04, 0.18, 0.14]} />
+          <meshStandardMaterial color="#322d25" roughness={0.85} />
+        </mesh>
+        {/* Rugged Leather Hiking Boot */}
+        <mesh position={[0, -0.62, 0.05]} castShadow>
           <boxGeometry args={[0.18, 0.16, 0.3]} />
-          <meshStandardMaterial color="#1f1b16" roughness={0.9} />
+          <meshStandardMaterial color="#221c17" roughness={0.9} />
         </mesh>
       </group>
 
@@ -284,12 +337,17 @@ export default function Player() {
       <group ref={rightLegRef} position={[0.15, 0.65, 0]}>
         <mesh position={[0, -0.34, 0]}>
           <boxGeometry args={[0.17, 0.66, 0.19]} />
-          <meshStandardMaterial color="#38332c" roughness={0.8} />
+          <meshStandardMaterial color="#3a352c" roughness={0.82} />
         </mesh>
-        {/* Heavy Leather Hiking Boot */}
-        <mesh position={[0, -0.62, 0.05]}>
+        {/* Thigh Cargo Pocket */}
+        <mesh position={[0.08, -0.2, 0]}>
+          <boxGeometry args={[0.04, 0.18, 0.14]} />
+          <meshStandardMaterial color="#322d25" roughness={0.85} />
+        </mesh>
+        {/* Rugged Leather Hiking Boot */}
+        <mesh position={[0, -0.62, 0.05]} castShadow>
           <boxGeometry args={[0.18, 0.16, 0.3]} />
-          <meshStandardMaterial color="#1f1b16" roughness={0.9} />
+          <meshStandardMaterial color="#221c17" roughness={0.9} />
         </mesh>
       </group>
     </group>

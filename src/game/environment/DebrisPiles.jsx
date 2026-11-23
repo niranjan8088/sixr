@@ -74,6 +74,32 @@ export default function DebrisPiles() {
           </mesh>
         </group>
       ))}
+
+      {/* 3. Wild Fern Patches & Dense Groundcover (Exact match to Rooted in Image 4!) */}
+      {[
+        [-10.5, -12.5],
+        [-8.2, -14.8],
+        [-11.2, -16.0],
+        [-7.8, -5.0],
+        [7.5, -10.0],
+        [8.2, 2.0],
+        [-8.0, 14.0],
+        [8.5, 12.0]
+      ].map(([fx, fz], fIdx) => (
+        <group key={`fern-clump-${fIdx}`} position={[fx, 0.12, fz]}>
+          {/* Radiating fern leaf fronds */}
+          {[0, 1.05, 2.1, 3.14, 4.19, 5.24].map((rad, leafIdx) => (
+            <mesh
+              key={`frond-${leafIdx}`}
+              rotation={[0.3, rad, 0.45]}
+              position={[Math.cos(rad) * 0.25, 0.15, Math.sin(rad) * 0.25]}
+            >
+              <planeGeometry args={[0.42, 0.9]} />
+              <meshStandardMaterial color={leafIdx % 2 === 0 ? '#3f6212' : '#4d7c0f'} roughness={0.9} side={2} />
+            </mesh>
+          ))}
+        </group>
+      ))}
     </group>
   );
 }

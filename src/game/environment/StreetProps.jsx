@@ -144,6 +144,172 @@ export default function StreetProps() {
           <meshBasicMaterial color="#ff5500" />
         </mesh>
       </group>
+
+      {/* =================================================================
+          6. REALISTIC FIRE STATION ENVIRONMENT & RESCUE PROPS (Image 3 Match!)
+          Dispatch terminal, workbench, fire axes, chainsaws, gas cans, triage cot
+         ================================================================= */}
+      <group position={[11.5, 0, 4.5]}>
+        {/* Dispatch Command Desk with Dual Monitors */}
+        <group position={[0, 0, 2.8]}>
+          {/* Wooden Office Desk */}
+          <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
+            <boxGeometry args={[2.2, 0.8, 1.0]} />
+            <meshStandardMaterial color="#322c24" roughness={0.8} />
+          </mesh>
+          {/* Dual Monitor Mount & Screens */}
+          <mesh position={[-0.45, 0.95, 0.1]} rotation={[0, 0.12, 0]}>
+            <boxGeometry args={[0.7, 0.42, 0.05]} />
+            <meshStandardMaterial color="#111822" roughness={0.4} />
+          </mesh>
+          <mesh position={[-0.45, 0.95, 0.13]} rotation={[0, 0.12, 0]}>
+            <planeGeometry args={[0.62, 0.36]} />
+            <meshBasicMaterial color="#00e5ff" />
+          </mesh>
+          <mesh position={[0.45, 0.95, 0.1]} rotation={[0, -0.12, 0]}>
+            <boxGeometry args={[0.7, 0.42, 0.05]} />
+            <meshStandardMaterial color="#111822" roughness={0.4} />
+          </mesh>
+          <mesh position={[0.45, 0.95, 0.13]} rotation={[0, -0.12, 0]}>
+            <planeGeometry args={[0.62, 0.36]} />
+            <meshBasicMaterial color="#22c55e" />
+          </mesh>
+          {/* Keyboard & Mousepad */}
+          <mesh position={[0, 0.81, -0.15]}>
+            <boxGeometry args={[0.6, 0.02, 0.22]} />
+            <meshStandardMaterial color="#18181b" roughness={0.6} />
+          </mesh>
+          {/* Office Swivel Chair */}
+          <mesh position={[0, 0.45, -0.8]} castShadow>
+            <boxGeometry args={[0.5, 0.5, 0.5]} />
+            <meshStandardMaterial color="#1c2024" roughness={0.8} />
+          </mesh>
+          <mesh position={[0, 0.9, -1.0]}>
+            <boxGeometry args={[0.46, 0.5, 0.1]} />
+            <meshStandardMaterial color="#272e38" roughness={0.8} />
+          </mesh>
+        </group>
+
+        {/* Heavy-Duty Metal Equipment Workbench */}
+        <group position={[0, 0, -1.2]}>
+          <mesh position={[0, 0.48, 0]} castShadow receiveShadow>
+            <boxGeometry args={[2.8, 0.95, 1.1]} />
+            <meshStandardMaterial color="#475569" roughness={0.6} metalness={0.7} />
+          </mesh>
+          {/* Heavy Bench Vice */}
+          <mesh position={[-1.0, 1.05, 0.3]}>
+            <boxGeometry args={[0.25, 0.22, 0.25]} />
+            <meshStandardMaterial color="#334155" metalness={0.85} />
+          </mesh>
+          {/* Red Firefighter Axe */}
+          <group position={[-0.3, 0.98, 0.1]} rotation={[0, 0.6, Math.PI / 2]}>
+            <mesh>
+              <cylinderGeometry args={[0.025, 0.025, 0.9, 8]} />
+              <meshStandardMaterial color="#b45309" roughness={0.7} />
+            </mesh>
+            <mesh position={[0, 0.42, 0.05]}>
+              <boxGeometry args={[0.03, 0.18, 0.14]} />
+              <meshStandardMaterial color="#dc2626" metalness={0.8} />
+            </mesh>
+          </group>
+          {/* Orange Rescue Chainsaw */}
+          <group position={[0.5, 1.05, 0]}>
+            <mesh>
+              <boxGeometry args={[0.35, 0.22, 0.22]} />
+              <meshStandardMaterial color="#ea580c" roughness={0.5} />
+            </mesh>
+            {/* Guide Bar */}
+            <mesh position={[0.35, -0.02, 0]}>
+              <boxGeometry args={[0.45, 0.08, 0.02]} />
+              <meshStandardMaterial color="#94a3b8" metalness={0.9} />
+            </mesh>
+          </group>
+          {/* Red Emergency Jerry Can */}
+          <mesh position={[1.1, 1.1, 0.1]} castShadow>
+            <boxGeometry args={[0.22, 0.35, 0.28]} />
+            <meshStandardMaterial color="#b91c1c" roughness={0.5} />
+          </mesh>
+        </group>
+
+        {/* Wall Pegboard Tool Rack */}
+        <group position={[1.4, 1.4, 0.8]} rotation={[0, -Math.PI / 2, 0]}>
+          <mesh receiveShadow>
+            <boxGeometry args={[3.6, 1.6, 0.08]} />
+            <meshStandardMaterial color="#cbd5e1" roughness={0.7} metalness={0.3} />
+          </mesh>
+          {/* Coiled Fire Hose */}
+          <mesh position={[-1.0, 0.1, 0.12]} rotation={[0, 0, 0]}>
+            <torusGeometry args={[0.32, 0.1, 10, 24]} />
+            <meshStandardMaterial color="#e11d48" roughness={0.8} />
+          </mesh>
+          {/* Rescue Helmets / Hard Hats */}
+          {[-0.2, 0.4, 1.0].map((hx, hi) => (
+            <mesh key={`helmet-${hi}`} position={[hx, 0.3, 0.12]}>
+              <sphereGeometry args={[0.15, 12, 12]} />
+              <meshStandardMaterial color={hi === 0 ? '#facc15' : '#ffffff'} roughness={0.3} />
+            </mesh>
+          ))}
+        </group>
+
+        {/* Metal Emergency Triage Cot / Bed */}
+        <group position={[-1.2, 0, 0.6]}>
+          {/* Metal Bed Frame */}
+          <mesh position={[0, 0.28, 0]} castShadow>
+            <boxGeometry args={[0.9, 0.4, 2.0]} />
+            <meshStandardMaterial color="#334155" roughness={0.7} metalness={0.8} />
+          </mesh>
+          {/* Mattress / Folded Khaki Rescue Blanket */}
+          <mesh position={[0, 0.52, 0]}>
+            <boxGeometry args={[0.82, 0.12, 1.9]} />
+            <meshStandardMaterial color="#64748b" roughness={0.9} />
+          </mesh>
+          <mesh position={[0, 0.6, -0.6]}>
+            <boxGeometry args={[0.6, 0.1, 0.45]} />
+            <meshStandardMaterial color="#94a3b8" roughness={0.9} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* =================================================================
+          7. DROOPING OVERHEAD UTILITY & POWER CABLES (Image 2 Match!)
+          Sagging electrical lines suspended across the boulevard and buildings
+         ================================================================= */}
+      {/* Cable 1: Crossing from West street pole [-8.8, 7.1, 8] to East pole [8.8, 7.1, 8] */}
+      <group position={[0, 6.2, 8]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.018, 0.018, 17.6, 6]} />
+          <meshBasicMaterial color="#18181b" />
+        </mesh>
+        {/* Drooping Center Sag */}
+        <mesh position={[0, -0.5, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.015, 0.015, 12.0, 6]} />
+          <meshBasicMaterial color="#18181b" />
+        </mesh>
+      </group>
+
+      {/* Cable 2: Crossing from West street pole [-8.8, 7.1, -2] to East pole [8.8, 7.1, -2] */}
+      <group position={[0, 6.1, -2]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.018, 0.018, 17.6, 6]} />
+          <meshBasicMaterial color="#18181b" />
+        </mesh>
+        <mesh position={[0, -0.6, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.015, 0.015, 12.0, 6]} />
+          <meshBasicMaterial color="#18181b" />
+        </mesh>
+      </group>
+
+      {/* Cable 3: Crossing from West street pole [-8.8, 7.1, -26] to East pole [8.8, 7.1, -26] */}
+      <group position={[0, 6.1, -26]}>
+        <mesh rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.018, 0.018, 17.6, 6]} />
+          <meshBasicMaterial color="#18181b" />
+        </mesh>
+        <mesh position={[0, -0.6, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.015, 0.015, 12.0, 6]} />
+          <meshBasicMaterial color="#18181b" />
+        </mesh>
+      </group>
     </group>
   );
 }
