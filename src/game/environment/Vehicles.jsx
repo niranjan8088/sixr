@@ -28,6 +28,8 @@ export default function Vehicles() {
     globalCollisions.addBox(-5.8, -32.0, -2.4, -28.0, 'veh-wagon');
     // Police Patrol Cruiser (Intersection center)
     globalCollisions.addBox(-5.5, -10.0, -1.5, -6.0, 'veh-police');
+    // Abandoned Yellow Taxi Cab (Reference image match)
+    globalCollisions.addBox(-7.2, 5.0, -3.2, 9.0, 'veh-taxi');
   }, []);
 
   return (
@@ -329,6 +331,72 @@ export default function Vehicles() {
             </mesh>
           ))
         )}
+      </group>
+
+      {/* =================================================================
+          5. ABANDONED NYC YELLOW TAXI CAB (Reference Image Exact Match!)
+          Weathered yellow body, checkerboard stripe, roof TAXI sign, flat tires
+         ================================================================= */}
+      <group position={[-5.2, 0.42, 7.0]} rotation={[-0.02, -0.32, 0.04]}>
+        {/* Main Yellow Chassis */}
+        <mesh castShadow receiveShadow>
+          <boxGeometry args={[1.9, 0.65, 4.3]} />
+          <meshStandardMaterial color="#ca8a04" roughness={0.7} metalness={0.2} />
+        </mesh>
+
+        {/* Checkerboard Taxi Side Stripe */}
+        {[-0.96, 0.96].map((sx, si) => (
+          <group key={`check-${si}`} position={[sx, 0.12, 0]} rotation={[0, si === 0 ? -Math.PI / 2 : Math.PI / 2, 0]}>
+            <mesh>
+              <planeGeometry args={[2.8, 0.14]} />
+              <meshStandardMaterial color="#18181b" />
+            </mesh>
+            {[-1.0, -0.5, 0, 0.5, 1.0].map((cx, ci) => (
+              <mesh key={`sq-${ci}`} position={[cx, 0, 0.005]}>
+                <planeGeometry args={[0.18, 0.12]} />
+                <meshBasicMaterial color="#ffffff" />
+              </mesh>
+            ))}
+          </group>
+        ))}
+
+        {/* Cabin Glass & Roof */}
+        <mesh position={[0, 0.5, -0.2]}>
+          <boxGeometry args={[1.55, 0.52, 2.2]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.2} metalness={0.8} />
+        </mesh>
+        <mesh position={[0, 0.78, -0.2]}>
+          <boxGeometry args={[1.58, 0.08, 2.1]} />
+          <meshStandardMaterial color="#ca8a04" roughness={0.7} />
+        </mesh>
+
+        {/* Roof Illuminated TAXI Sign */}
+        <group position={[0, 0.9, -0.2]}>
+          <mesh>
+            <boxGeometry args={[0.7, 0.16, 0.22]} />
+            <meshStandardMaterial color="#fef08a" roughness={0.4} />
+          </mesh>
+          <mesh position={[0, 0, 0.115]}>
+            <planeGeometry args={[0.5, 0.1]} />
+            <meshBasicMaterial color="#ca8a04" />
+          </mesh>
+        </group>
+
+        {/* Flat Rusted Wheels in Roadside Weeds */}
+        {[-0.98, 0.98].map((x) =>
+          [-1.3, 1.35].map((z) => (
+            <mesh key={`tax-w-${x}-${z}`} position={[x, -0.16, z]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.3, 0.3, 0.26, 12]} />
+              <meshStandardMaterial color="#27272a" roughness={0.95} />
+            </mesh>
+          ))
+        )}
+
+        {/* Roadside Weeds wrapping taxi bumper */}
+        <mesh position={[-0.4, 0.1, 2.2]} rotation={[0.2, 0.4, 0]}>
+          <coneGeometry args={[0.35, 0.45, 6]} />
+          <meshStandardMaterial color="#4d7c0f" roughness={0.95} />
+        </mesh>
       </group>
     </group>
   );

@@ -166,20 +166,57 @@ export default function Buildings() {
               ))
             )}
 
-            {/* Storefront Green Fabric Awning Canopy (Image 2 Melvin Rice Corner Building) */}
+            {/* =================================================================
+                FIRST BANK CORNER LANDMARK ARCHITECTURE (Reference Image Match!)
+                Grand arched entrance portal, carved relief sign, double doors, balconies
+               ================================================================= */}
             {b.id === 'b-w1' && (
-              <group position={[0, -halfH + 3.4, depth / 2 + 1.1]} rotation={[0.24, 0, 0]}>
-                <mesh castShadow receiveShadow>
-                  <boxGeometry args={[width * 0.75, 0.1, 2.2]} />
-                  <meshStandardMaterial color="#14532d" roughness={0.85} />
+              <group position={[0, -halfH + 3.8, depth / 2 + 0.15]}>
+                {/* Neoclassical Grand Stone Archway Surround */}
+                <mesh position={[0, 0, 0]} castShadow>
+                  <boxGeometry args={[7.2, 6.8, 0.4]} />
+                  <meshStandardMaterial color="#b8ab99" roughness={0.7} />
                 </mesh>
-                {/* Awning Front Drop Valance */}
-                <mesh position={[0, -0.18, 1.1]}>
-                  <boxGeometry args={[width * 0.75, 0.36, 0.06]} />
-                  <meshStandardMaterial color="#166534" roughness={0.8} />
+                {/* Recessed Arched Doorway Cavity */}
+                <mesh position={[0, -0.4, 0.15]}>
+                  <boxGeometry args={[4.4, 5.2, 0.2]} />
+                  <meshStandardMaterial color="#09090b" />
+                </mesh>
+                {/* Dark Tinted Glass Entrance Double Doors */}
+                <mesh position={[0, -1.2, 0.2]}>
+                  <boxGeometry args={[3.8, 3.6, 0.1]} />
+                  <meshStandardMaterial color="#1e293b" roughness={0.15} metalness={0.8} />
+                </mesh>
+                {/* Polished Bronze Push Bars */}
+                <mesh position={[0, -1.2, 0.28]}>
+                  <boxGeometry args={[3.2, 0.08, 0.08]} />
+                  <meshStandardMaterial color="#d97706" roughness={0.2} metalness={0.9} />
+                </mesh>
+                {/* Carved Relief Arch Header: "FIRST BANK" (Exact text from Reference Image!) */}
+                <mesh position={[0, 2.2, 0.22]}>
+                  <boxGeometry args={[5.2, 0.9, 0.15]} />
+                  <meshStandardMaterial color="#78716c" roughness={0.8} />
+                </mesh>
+                <mesh position={[0, 2.2, 0.31]}>
+                  <planeGeometry args={[4.8, 0.6]} />
+                  <meshBasicMaterial color="#fef08a" />
                 </mesh>
               </group>
             )}
+
+            {/* Decorative Wrought-Iron Window Balconies on 2nd Floor */}
+            {[-width * 0.32, width * 0.32].map((bx, bi) => (
+              <group key={`balcony-${bi}`} position={[bx, -halfH + 6.8, depth / 2 + 0.4]}>
+                <mesh castShadow>
+                  <boxGeometry args={[2.2, 0.1, 0.7]} />
+                  <meshStandardMaterial color="#1f2937" metalness={0.8} />
+                </mesh>
+                <mesh position={[0, 0.4, 0.32]}>
+                  <boxGeometry args={[2.2, 0.75, 0.05]} />
+                  <meshStandardMaterial color="#111827" metalness={0.85} />
+                </mesh>
+              </group>
+            ))}
 
             {/* Overgrown Green Ivy / Climbing Vines on Facade (Like in Image 1 & 2!) */}
             {b.hasIvy && (
