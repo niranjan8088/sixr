@@ -1,5 +1,82 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 import { globalCollisions } from '../core/CollisionManager';
+
+/**
+ * Animated Fire Barrel with multi-layered flickering flames and glowing coal bed.
+ */
+function AnimatedFireBarrel({ position, color = '#553018' }) {
+  const flame1Ref = useRef();
+  const flame2Ref = useRef();
+  const flame3Ref = useRef();
+  const lightRef = useRef();
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime() * 7;
+    if (flame1Ref.current) {
+      const s = 1.0 + Math.sin(t) * 0.18 + Math.cos(t * 1.5) * 0.12;
+      flame1Ref.current.scale.set(s, 1.0 + Math.sin(t * 1.2) * 0.25, s);
+      flame1Ref.current.rotation.y = t * 0.2;
+    }
+    if (flame2Ref.current) {
+      const s = 1.0 + Math.cos(t * 1.3) * 0.2;
+      flame2Ref.current.scale.set(s, 1.0 + Math.cos(t) * 0.3, s);
+      flame2Ref.current.rotation.y = -t * 0.3;
+    }
+    if (flame3Ref.current) {
+      const s = 0.8 + Math.sin(t * 2) * 0.15;
+      flame3Ref.current.scale.set(s, s * 1.2, s);
+    }
+    if (lightRef.current) {
+      lightRef.current.intensity = 1.6 + Math.sin(t * 1.5) * 0.5 + Math.cos(t * 2.3) * 0.3;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Weathered Corrugated Oil Drum */}
+      <mesh position={[0, 0, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.42, 0.42, 1.25, 16]} />
+        <meshStandardMaterial color={color} roughness={0.85} metalness={0.45} />
+      </mesh>
+      {/* Rib Rims */}
+      {[-0.3, 0.3].map((ry, ri) => (
+        <mesh key={`rib-${ri}`} position={[0, ry, 0]}>
+          <cylinderGeometry args={[0.435, 0.435, 0.05, 16]} />
+          <meshStandardMaterial color="#1f1812" metalness={0.6} />
+        </mesh>
+      ))}
+      {/* Charred Coals Bed */}
+      <mesh position={[0, 0.58, 0]}>
+        <cylinderGeometry args={[0.39, 0.39, 0.1, 12]} />
+        <meshStandardMaterial color="#221208" roughness={0.9} />
+      </mesh>
+      {/* Glowing Ember Bed */}
+      <mesh position={[0, 0.62, 0]}>
+        <circleGeometry args={[0.34, 12]} rotation={[-Math.PI / 2, 0, 0]} />
+        <meshBasicMaterial color="#ff4400" />
+      </mesh>
+      {/* Layer 1: Outer Orange Flame Cones */}
+      <mesh ref={flame1Ref} position={[0, 0.95, 0]}>
+        <coneGeometry args={[0.32, 0.75, 8]} />
+        <meshBasicMaterial color="#ff6600" transparent opacity={0.85} />
+      </mesh>
+      {/* Layer 2: Core Yellow Hot Flame */}
+      <mesh ref={flame2Ref} position={[0, 0.9, 0]}>
+        <coneGeometry args={[0.22, 0.6, 7]} />
+        <meshBasicMaterial color="#ffcc00" transparent opacity={0.9} />
+      </mesh>
+      {/* Layer 3: White Hot Center Tip */}
+      <mesh ref={flame3Ref} position={[0, 0.82, 0]}>
+        <coneGeometry args={[0.12, 0.42, 6]} />
+        <meshBasicMaterial color="#ffffff" />
+      </mesh>
+      {/* Flickering Fire Light */}
+      <pointLight ref={lightRef} position={[0, 1.2, 0]} color="#ff7700" distance={8} decay={2} intensity={1.8} />
+    </group>
+  );
+}
 
 export default function StreetProps() {
   // Register barrier colliders
@@ -19,11 +96,14 @@ export default function StreetProps() {
           <boxGeometry args={[8.0, 1.0, 0.6]} />
           <meshStandardMaterial color="#404650" roughness={0.8} />
         </mesh>
-        {/* Warning Stripes */}
+        {/* Warning Stripes (Double-sided to prevent clipping) */}
         {[-3, -1.5, 0, 1.5, 3].map((x, i) => (
           <mesh key={`bar-s1-${i}`} position={[x, 0.05, 0.32]}>
             <planeGeometry args={[0.9, 0.7]} />
-            <meshStandardMaterial color={i % 2 === 0 ? '#ff7700' : '#ffffff'} />
+            <meshStandardMaterial
+              color={i % 2 === 0 ? '#ff7700' : '#ffffff'}
+              side={THREE.DoubleSide}
+            />
           </mesh>
         ))}
       </group>
@@ -36,7 +116,7 @@ export default function StreetProps() {
         </mesh>
         <mesh position={[0, 0.05, 0.32]}>
           <planeGeometry args={[3.8, 0.6]} />
-          <meshStandardMaterial color="#ff7700" />
+          <meshStandardMaterial color="#ff7700" side={THREE.DoubleSide} />
         </mesh>
       </group>
       <group position={[5.0, 0.5, -15.0]} rotation={[0, -0.2, 0]}>
@@ -46,7 +126,7 @@ export default function StreetProps() {
         </mesh>
         <mesh position={[0, 0.05, 0.32]}>
           <planeGeometry args={[3.8, 0.6]} />
-          <meshStandardMaterial color="#ff7700" />
+          <meshStandardMaterial color="#ff7700" side={THREE.DoubleSide} />
         </mesh>
       </group>
 
@@ -121,29 +201,9 @@ export default function StreetProps() {
         </group>
       </group>
 
-      {/* 5. Fire Barrels / Burning Drums */}
-      <group position={[-14.5, 0.6, -11.5]}>
-        {/* Metal Oil Drum */}
-        <mesh position={[0, 0, 0]}>
-          <cylinderGeometry args={[0.4, 0.4, 1.2, 14]} />
-          <meshStandardMaterial color="#553018" roughness={0.8} metalness={0.5} />
-        </mesh>
-        {/* Burning Fire core */}
-        <mesh position={[0, 0.7, 0]}>
-          <dodecahedronGeometry args={[0.3, 0]} />
-          <meshBasicMaterial color="#ff5500" />
-        </mesh>
-      </group>
-      <group position={[6.2, 0.6, -26.0]}>
-        <mesh position={[0, 0, 0]}>
-          <cylinderGeometry args={[0.4, 0.4, 1.2, 14]} />
-          <meshStandardMaterial color="#4a2215" roughness={0.8} metalness={0.5} />
-        </mesh>
-        <mesh position={[0, 0.7, 0]}>
-          <dodecahedronGeometry args={[0.3, 0]} />
-          <meshBasicMaterial color="#ff5500" />
-        </mesh>
-      </group>
+      {/* 5. Animated Flickering Fire Barrels / Burning Drums */}
+      <AnimatedFireBarrel position={[-14.5, 0.6, -11.5]} color="#553018" />
+      <AnimatedFireBarrel position={[6.2, 0.6, -26.0]} color="#4a2215" />
 
       {/* =================================================================
           6. REALISTIC FIRE STATION ENVIRONMENT & RESCUE PROPS (Image 3 Match!)
@@ -313,4 +373,3 @@ export default function StreetProps() {
     </group>
   );
 }
-

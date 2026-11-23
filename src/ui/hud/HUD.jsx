@@ -250,13 +250,22 @@ export default function HUD() {
             const isSaved =
               s.status === SURVIVOR_STATUS.STABILIZED ||
               s.status === SURVIVOR_STATUS.EVACUATED;
-            const tagColor = isSaved ? '#10b981' : s.triageColor || '#f59e0b';
+            const isLocated = s.status === SURVIVOR_STATUS.LOCATED || s.status === SURVIVOR_STATUS.ASSESSMENT;
+            const tagColor = isSaved ? '#10b981' : isLocated ? (s.triageColor || '#f59e0b') : '#94a3b8';
+
+            let statusLabel = `${dist}m`;
+            if (s.status === SURVIVOR_STATUS.EVACUATED) statusLabel = 'EVACUATED';
+            else if (s.status === SURVIVOR_STATUS.STABILIZED) statusLabel = 'STABILIZED';
+            else if (isLocated) statusLabel = `LOCATED ${dist}m`;
+            else statusLabel = `SIGNAL ${dist}m`;
+
             return (
               <div
                 key={`wp-${s.id}`}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
+                  alignItems: 'center',
                   color: isSaved ? '#94a3b8' : '#fff'
                 }}
               >
@@ -266,13 +275,14 @@ export default function HUD() {
                       width: '6px',
                       height: '6px',
                       borderRadius: '50%',
-                      background: tagColor
+                      background: tagColor,
+                      boxShadow: isSaved ? 'none' : `0 0 6px ${tagColor}`
                     }}
                   />
                   {s.name}
                 </span>
-                <span style={{ color: tagColor, fontWeight: 700 }}>
-                  {isSaved ? 'STABILIZED' : `${dist}m`}
+                <span style={{ color: tagColor, fontWeight: 700, fontSize: '10px' }}>
+                  {statusLabel}
                 </span>
               </div>
             );
@@ -385,46 +395,28 @@ export default function HUD() {
           </div>
         </div>
 
-        {/* Dual Vitals Horizontal Bars Below Radar */}
+        {/* Dual Vitals Horizontal Bars Below Radar - Fully visible, never clipped */}
         <div className="gta-vitals-container">
-          <div className="gta-bar-wrapper">
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '9px',
-                fontFamily: 'var(--font-mono)',
-                color: '#94a3b8',
-                marginBottom: '2px'
-              }}
-            >
+          <div className="gta-vitals-item">
+            <div className="gta-vitals-label-row">
               <span>SUIT INTEGRITY</span>
               <span style={{ color: player.health < 30 ? '#ef4444' : '#10b981', fontWeight: 700 }}>
                 {Math.round(player.health)}%
               </span>
             </div>
-            <div className="gta-bar-track">
+            <div className="gta-bar-wrapper">
               <div className="gta-bar-fill gta-bar-health" style={{ width: `${player.health}%` }} />
             </div>
           </div>
 
-          <div className="gta-bar-wrapper">
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '9px',
-                fontFamily: 'var(--font-mono)',
-                color: '#94a3b8',
-                marginBottom: '2px'
-              }}
-            >
+          <div className="gta-vitals-item">
+            <div className="gta-vitals-label-row">
               <span>EXO-STAMINA</span>
               <span style={{ color: '#0ea5e9', fontWeight: 700 }}>
                 {Math.round(player.stamina)}%
               </span>
             </div>
-            <div className="gta-bar-track">
+            <div className="gta-bar-wrapper">
               <div className="gta-bar-fill gta-bar-stamina" style={{ width: `${player.stamina}%` }} />
             </div>
           </div>

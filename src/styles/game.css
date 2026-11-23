@@ -276,8 +276,8 @@
   left: 24px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  width: 130px;
+  gap: 8px;
+  width: 140px;
 }
 
 .gta-radar-outer {
@@ -380,21 +380,38 @@
   box-shadow: 0 0 8px #00ffcc;
 }
 
-/* GTA-Style Vitals Bars */
+/* GTA-Style Vitals Bars - Fully visible with no text clipping */
 .gta-vitals-container {
   width: 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gta-vitals-item {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
+.gta-vitals-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
 .gta-bar-wrapper {
   width: 100%;
   height: 6px;
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(0, 0, 0, 0.75);
   border-radius: 1px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .gta-bar-track {
